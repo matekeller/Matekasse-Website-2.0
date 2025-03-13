@@ -92,18 +92,18 @@ const getCards = (offerings: DBOffering[]) => {
       <div className="flex items-center justify-right group justify-end">
         <div className="flex relative items-center justify-center right-3">
           <Image
-            className="relative group-hover:animate-spin-slow-pulsate-cw"
+            className="relative group-hover:animate-spin-slow-pulsate-cw max-w-none"
             src={{ src: "/star.svg", height: 150, width: 150 }}
             alt="decorative star"
           />
           <Image
-            className="absolute group-hover:animate-spin-slow-ccw"
+            className="absolute group-hover:animate-spin-slow-ccw max-w-none"
             src={{ src: "/star2.svg", height: 135, width: 135 }}
             alt="decorative star2"
           />
 
           <Image
-            className="rotate-25 group-hover:animate-wiggle absolute"
+            className="rotate-25 group-hover:animate-wiggle absolute max-w-none"
             src={{
               src: offering.imageUrl,
               height: 120,

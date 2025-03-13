@@ -69,7 +69,8 @@ const getCards = (offerings: DBOffering[]) => {
         <CardHeader>
           <CardTitle>{offering.readableName}</CardTitle>
           <CardDescription>
-            Currently in stock: {offering.inInventory}
+            Currently in stock:{" "}
+            <span style={{ fontWeight: "bold" }}>{offering.inInventory}</span>
           </CardDescription>
         </CardHeader>
 

@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { setupDevPlatform } from '@cloudflare/next-on-pages/next-dev';
 
 const devOptions = {
   async rewrites() {
@@ -20,6 +21,10 @@ const devOptions = {
   }
 }
 
+if (process.env.NODE_ENV === 'development') {
+  await setupDevPlatform();
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
  ...(process.env.NODE_ENV === "development" ? devOptions : {}),
@@ -31,7 +36,6 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "msrd0.de" }
     ],
   },
-  output: "export",
 };
 
 export default nextConfig;

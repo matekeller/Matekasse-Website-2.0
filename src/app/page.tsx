@@ -1,4 +1,5 @@
 "use client";
+export const runtime = "edge";
 import { TransactionsArea } from "@/components/homepage/TransactionsArea";
 import {
   Breadcrumb,

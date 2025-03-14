@@ -22,7 +22,7 @@ const devOptions = {
 }
 
 if (process.env.NODE_ENV === 'development') {
-  await setupDevPlatform()
+  setupDevPlatform().catch(e => console.error(e));
 }
 
 /** @type {import('next').NextConfig} */

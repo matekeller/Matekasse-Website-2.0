@@ -35,17 +35,16 @@ export const logIntoMatekasse = async (
   errors?: string[];
 } | null> => {
   try {
-    const response = await fetch("/api/proxy/graphql", {
-      method: "POST",
-      headers: { Accept: "application/json" },
-      body: JSON.stringify(
+    const response = await fetchBackend( 
+      { Accept: "application/json" },
+      JSON.stringify(
         gql.mutation({
           operation: "signIn",
           variables: { username, password: password },
           fields: [],
         })
       ),
-    });
+    );
 
     if (response.ok && response.status === 200) {
       const rsp = await response.json();
@@ -80,10 +79,9 @@ export const fetchOwnTransactions = async (
   errors?: string[];
 }> => {
   try {
-    const response = await fetch("/api/proxy/graphql", {
-      method: "POST",
-      headers: { Accept: "application/json", Authorization: jwt },
-      body: JSON.stringify(
+    const response = await fetchBackend(
+      { Accept: "application/json", Authorization: jwt },
+      JSON.stringify(
         gql.query({
           operation: "me",
           fields: [
@@ -123,7 +121,7 @@ export const fetchOwnTransactions = async (
           ],
         })
       ),
-    });
+    );
 
     if (response.ok && response.status === 200) {
       const rsp = await response.json();
@@ -157,10 +155,9 @@ export const fetchOfferings = async (): Promise<{
   errors?: string[];
 }> => {
   try {
-    const response = await fetch("/api/proxy/graphql", {
-      method: "POST",
-      headers: { Accept: "application/json" },
-      body: JSON.stringify(
+    const response = await fetchBackend(
+     { Accept: "application/json" },
+      JSON.stringify(
         gql.query({
           operation: "offerings",
           fields: [
@@ -176,7 +173,7 @@ export const fetchOfferings = async (): Promise<{
           variables: {},
         })
       ),
-    });
+    );
 
     if (response.ok && response.status === 200) {
       const rsp = await response.json();
@@ -210,17 +207,16 @@ export const fetchOwnUserInfo = async (
   errors?: string[];
 }> => {
   try {
-    const response = await fetch("/api/proxy/graphql", {
-      method: "POST",
-      headers: { Accept: "application/json", Authorization: jwt },
-      body: JSON.stringify(
+    const response = await fetchBackend(
+       { Accept: "application/json", Authorization: jwt },
+       JSON.stringify(
         gql.query({
           operation: "me",
           fields: ["username", "fullName", "balance"],
           variables: {},
         })
       ),
-    });
+    );
 
     if (response.ok && response.status === 200) {
       const rsp = await response.json();
@@ -246,3 +242,9 @@ export const fetchOwnUserInfo = async (
     return { data: null, errors: ["Error while own user info"] };
   }
 };
+
+const fetchBackend = async (headers: Record<string, string>, body: string): Promise<Response> => {
+  const url = process.env.NODE_ENV === "development" ? "/api/proxy/graphql" : "https://api.matekasse.de/graphql"
+
+  return fetch(url, { method: "POST", headers, body })
+}

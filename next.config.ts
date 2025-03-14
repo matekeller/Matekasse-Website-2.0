@@ -1,16 +1,6 @@
 import type { NextConfig } from "next";
 
-/** @type {import('next').NextConfig} */
-const nextConfig: NextConfig = {
-  async redirects() {
-    return [
-      {
-        statusCode: 301,
-        source: "/_error",
-        destination: "/",
-      },
-    ];
-  },
+const devOptions = {
   async rewrites() {
     return [
       {
@@ -19,6 +9,20 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        statusCode: 301,
+        source: "/_error",
+        destination: "/",
+      },
+    ];
+  }
+}
+
+/** @type {import('next').NextConfig} */
+const nextConfig: NextConfig = {
+ ...(process.env.NODE_ENV === "development" ? devOptions : {}),
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "nx49890.your-storageshare.de" },
@@ -27,6 +31,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "msrd0.de" }
     ],
   },
+  output: "export",
 };
 
 export default nextConfig;

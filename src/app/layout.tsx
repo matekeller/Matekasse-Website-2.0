@@ -15,16 +15,16 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <html lang="de" className="dark">
-          <body>
+    <html lang="de" className="dark">
+      <body>
+        <SidebarProvider>
+          <AppSidebar />
+          <SidebarInset>
             <LoginForm />
             {children}
-          </body>
-        </html>
-      </SidebarInset>
-    </SidebarProvider>
+          </SidebarInset>
+        </SidebarProvider>
+      </body>
+    </html>
   )
 }

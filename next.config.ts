@@ -1,41 +1,41 @@
-import type { NextConfig } from "next";
-import { setupDevPlatform } from '@cloudflare/next-on-pages/next-dev';
+import type { NextConfig } from 'next'
+import { setupDevPlatform } from '@cloudflare/next-on-pages/next-dev'
 
 const devOptions = {
   async rewrites() {
     return [
       {
-        source: "/api/proxy/:path*",
-        destination: "https://api.matekasse.de/:path*", // External API
+        source: '/api/proxy/:path*',
+        destination: 'https://api.matekasse.de/:path*', // External API
       },
-    ];
+    ]
   },
   async redirects() {
     return [
       {
         statusCode: 301,
-        source: "/_error",
-        destination: "/",
+        source: '/_error',
+        destination: '/',
       },
-    ];
-  }
+    ]
+  },
 }
 
 if (process.env.NODE_ENV === 'development') {
-  await setupDevPlatform();
+  await setupDevPlatform()
 }
 
 /** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
- ...(process.env.NODE_ENV === "development" ? devOptions : {}),
+  ...(process.env.NODE_ENV === 'development' ? devOptions : {}),
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "nx49890.your-storageshare.de" },
-      { protocol: "https", hostname: "cdn.gero.dev" },
-      { protocol: "https", hostname: "cloud.librico.org" },
-      { protocol: "https", hostname: "msrd0.de" }
+      { protocol: 'https', hostname: 'nx49890.your-storageshare.de' },
+      { protocol: 'https', hostname: 'cdn.gero.dev' },
+      { protocol: 'https', hostname: 'cloud.librico.org' },
+      { protocol: 'https', hostname: 'msrd0.de' },
     ],
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig

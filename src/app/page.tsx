@@ -1,80 +1,80 @@
-"use client";
-export const runtime = "edge";
-import { TransactionsArea } from "@/components/homepage/TransactionsArea";
+'use client'
+export const runtime = 'edge'
+import { TransactionsArea } from '@/components/homepage/TransactionsArea'
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-} from "@/components/ui/breadcrumb";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+} from '@/components/ui/breadcrumb'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Separator } from '@/components/ui/separator'
+import { SidebarTrigger } from '@/components/ui/sidebar'
 import {
   DBTransactionsPage,
   fetchOfferings,
   fetchOwnTransactions,
-} from "./db/db";
-import { useEffect, useState } from "react";
-import { useSession } from "@/hooks/session";
-import { Cat } from "lucide-react";
-import { useInView } from "react-intersection-observer";
+} from './db/db'
+import { useEffect, useState } from 'react'
+import { useSession } from '@/hooks/session'
+import { Cat } from 'lucide-react'
+import { useInView } from 'react-intersection-observer'
 
-export type Transaction = {
-  id: number;
-  offeringId: string;
-  readableName: string;
-  imageUrl: string;
-  deleted: boolean;
-  adminUsername: string;
-  pricePaidCents: number;
-  timestamp: string;
-};
+export interface Transaction {
+  id: number
+  offeringId: string
+  readableName: string
+  imageUrl: string
+  deleted: boolean
+  adminUsername: string
+  pricePaidCents: number
+  timestamp: string
+}
 
 export default function Home() {
-  const { session } = useSession();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [cursor, setCursor] = useState<number | null>(null);
+  const { session } = useSession()
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [cursor, setCursor] = useState<number | null>(null)
 
-  const { ref, inView } = useInView();
+  const { ref, inView } = useInView()
 
   useEffect(() => {
-    if (!session) return;
+    if (!session) return
 
     const fetchData = async () => {
-      const transactionData = await fetchOwnTransactions(session);
+      const transactionData = await fetchOwnTransactions(session)
 
-      if (transactionData.data == null) return;
+      if (transactionData.data == null) return
 
       const serializedTransactions = await getTransactions([
         transactionData.data,
-      ]);
+      ])
 
-      setTransactions(serializedTransactions);
-      setCursor(transactionData.data.pageInfo.endCursor);
-    };
+      setTransactions(serializedTransactions)
+      setCursor(transactionData.data.pageInfo.endCursor)
+    }
 
-    fetchData();
-  }, [session]);
+    void fetchData()
+  }, [session])
 
   useEffect(() => {
-    if (!session || !inView || !cursor) return;
+    if (!session || !inView || !cursor) return
 
     const fetchMoreTransactions = async () => {
-      const moreTransactions = await fetchOwnTransactions(session, cursor);
+      const moreTransactions = await fetchOwnTransactions(session, cursor)
 
-      if (moreTransactions.data == null) return;
+      if (moreTransactions.data == null) return
 
       const serializedTransactions = await getTransactions([
         moreTransactions.data,
-      ]);
+      ])
 
-      setTransactions((cur) => [...cur, ...serializedTransactions]);
-      setCursor(moreTransactions.data!.pageInfo.endCursor);
-    };
+      setTransactions((cur) => [...cur, ...serializedTransactions])
+      setCursor(moreTransactions.data.pageInfo.endCursor)
+    }
 
-    fetchMoreTransactions();
-  }, [session, cursor, inView]);
+    void fetchMoreTransactions()
+  }, [session, cursor, inView])
 
   return (
     <main>
@@ -98,37 +98,37 @@ export default function Home() {
         </ScrollArea>
       </div>
     </main>
-  );
+  )
 }
 
 const getTransactions = async (
-  pages: DBTransactionsPage[]
+  pages: DBTransactionsPage[],
 ): Promise<Transaction[]> => {
-  const offerings = await fetchOfferings();
+  const offerings = await fetchOfferings()
 
-  let transactions: Transaction[] = [];
+  let transactions: Transaction[] = []
 
   if (offerings.data != null) {
     transactions = pages
       .map((page) =>
         page.edges.map((edge) => {
           const offering = offerings.data?.find(
-            (offering) => offering.name === edge.node.offeringId
-          );
+            (offering) => offering.name === edge.node.offeringId,
+          )
           return {
             id: edge.node.id,
             offeringId: edge.node.offeringId,
             readableName: offering?.readableName ?? edge.node.offeringId,
-            imageUrl: offering?.imageUrl ?? "",
+            imageUrl: offering?.imageUrl ?? '',
             deleted: edge.node.deleted,
             adminUsername: edge.node.admin.username,
             pricePaidCents: edge.node.pricePaidCents,
             timestamp: edge.node.timestamp,
-          };
-        })
+          }
+        }),
       )
-      .flat();
+      .flat()
   }
 
-  return transactions;
-};
+  return transactions
+}

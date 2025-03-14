@@ -1,36 +1,36 @@
-"use client";
-import { DBOffering } from "@/app/db/db";
+'use client'
+import { DBOffering } from '@/app/db/db'
 import {
   Card,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "../ui/card";
-import Image from "next/image";
-import { Separator } from "../ui/separator";
+} from '../ui/card'
+import Image from 'next/image'
+import { Separator } from '../ui/separator'
 
-export type OfferingsAreaProps = {
-  offerings: DBOffering[];
-};
+export interface OfferingsAreaProps {
+  offerings: DBOffering[]
+}
 
 export function OfferingsArea(props: OfferingsAreaProps) {
-  let { offerings } = props;
+  let { offerings } = props
 
   const offeringsDiscontinued = offerings.filter(
-    (offering) => offering.discontinued
-  );
+    (offering) => offering.discontinued,
+  )
 
-  offerings = offerings.filter((offering) => !offering.discontinued);
+  offerings = offerings.filter((offering) => !offering.discontinued)
 
   return (
     <>
       <div
         style={{
-          display: "grid",
+          display: 'grid',
           gridTemplateColumns:
-            "repeat(auto-fill, minmax(clamp(0px, 350px, 100%), 1fr))",
-          gap: "1em",
+            'repeat(auto-fill, minmax(clamp(0px, 350px, 100%), 1fr))',
+          gap: '1em',
         }}
       >
         {getCards(offerings)}
@@ -46,16 +46,16 @@ export function OfferingsArea(props: OfferingsAreaProps) {
 
       <div
         style={{
-          display: "grid",
+          display: 'grid',
           gridTemplateColumns:
-            "repeat(auto-fill, minmax(clamp(0px, 350px, 100%), 1fr))",
-          gap: "1em",
+            'repeat(auto-fill, minmax(clamp(0px, 350px, 100%), 1fr))',
+          gap: '1em',
         }}
       >
         {getCards(offeringsDiscontinued)}
       </div>
     </>
-  );
+  )
 }
 
 const getCards = (offerings: DBOffering[]) => {
@@ -63,28 +63,28 @@ const getCards = (offerings: DBOffering[]) => {
     <Card
       key={offering.name}
       className="grid flex-row"
-      style={{ gridTemplateColumns: "auto auto" }}
+      style={{ gridTemplateColumns: 'auto auto' }}
     >
       <div className="flex flex-col justify-between">
         <CardHeader>
           <CardTitle>{offering.readableName}</CardTitle>
           <CardDescription>
-            Currently in stock:{" "}
-            <span style={{ fontWeight: "bold" }}>{offering.inInventory}</span>
+            Currently in stock:{' '}
+            <span style={{ fontWeight: 'bold' }}>{offering.inInventory}</span>
           </CardDescription>
         </CardHeader>
 
         <CardFooter>
           <span
             className={`text-3xl font-extrabold ${
-              offering.discounted && !offering.discontinued
-                ? "text-red-700"
-                : "text-foreground"
+              offering.discounted && !offering.discontinued ?
+                'text-red-700'
+              : 'text-foreground'
             }`}
           >
-            {new Intl.NumberFormat("de-DE", {
-              style: "currency",
-              currency: "EUR",
+            {new Intl.NumberFormat('de-DE', {
+              style: 'currency',
+              currency: 'EUR',
             }).format(offering.priceCents / 100)}
           </span>
         </CardFooter>
@@ -94,12 +94,12 @@ const getCards = (offerings: DBOffering[]) => {
         <div className="flex relative items-center justify-center right-3">
           <Image
             className="relative group-hover:animate-spin-slow-pulsate-cw max-w-none"
-            src={{ src: "/star.svg", height: 150, width: 150 }}
+            src={{ src: '/star.svg', height: 150, width: 150 }}
             alt="decorative star"
           />
           <Image
             className="absolute group-hover:animate-spin-slow-ccw max-w-none"
-            src={{ src: "/star2.svg", height: 135, width: 135 }}
+            src={{ src: '/star2.svg', height: 135, width: 135 }}
             alt="decorative star2"
           />
 
@@ -115,5 +115,5 @@ const getCards = (offerings: DBOffering[]) => {
         </div>
       </div>
     </Card>
-  ));
-};
+  ))
+}

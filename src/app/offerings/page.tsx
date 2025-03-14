@@ -1,36 +1,36 @@
-"use client";
-export const runtime = "edge";
+'use client'
+export const runtime = 'edge'
 import {
   Breadcrumb,
   BreadcrumbList,
   BreadcrumbItem,
   BreadcrumbLink,
-} from "@/components/ui/breadcrumb";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
-import { useEffect, useState } from "react";
-import { DBOffering, fetchOfferings } from "../db/db";
-import { OfferingsArea } from "@/components/offerings/OfferingsArea";
+} from '@/components/ui/breadcrumb'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { SidebarTrigger } from '@/components/ui/sidebar'
+import { Separator } from '@/components/ui/separator'
+import { useEffect, useState } from 'react'
+import { DBOffering, fetchOfferings } from '../db/db'
+import { OfferingsArea } from '@/components/offerings/OfferingsArea'
 
 export default function Home() {
-  const [offerings, setOfferings] = useState<DBOffering[]>([]);
+  const [offerings, setOfferings] = useState<DBOffering[]>([])
 
   useEffect(() => {
     const fetchData = async () => {
-      const offeringData = await fetchOfferings();
+      const offeringData = await fetchOfferings()
 
-      if (offeringData.data == null) return;
+      if (offeringData.data == null) return
 
       setOfferings(
         offeringData.data.toSorted((a, b) =>
-          a.readableName.localeCompare(b.readableName)
-        )
-      );
-    };
+          a.readableName.localeCompare(b.readableName),
+        ),
+      )
+    }
 
-    fetchData();
-  }, []);
+    void fetchData()
+  }, [])
 
   return (
     <>
@@ -51,5 +51,5 @@ export default function Home() {
         </ScrollArea>
       </div>
     </>
-  );
+  )
 }

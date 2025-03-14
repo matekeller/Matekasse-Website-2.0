@@ -1,12 +1,12 @@
-import { z } from "zod";
+import { z } from 'zod'
 
 export const LoginFormSchema = z.object({
   username: z.string().trim(),
   password: z.string().trim(),
-});
+})
 
 export type FormState =
   | {
-      message?: string;
+      message?: string
     }
-  | undefined;
+  | undefined

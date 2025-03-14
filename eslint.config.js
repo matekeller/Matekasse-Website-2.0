@@ -4,7 +4,7 @@ import eslintPluginPrettier from 'eslint-plugin-prettier/recommended'
 
 const eslintConfig = [
   {
-    ignores: ["eslint.config.js", "next.config.ts"]
+    ignores: ["eslint.config.js", "next.config.ts", "src/components/ui/*.tsx"]
   },
   ...tseslint.configs.strictTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,

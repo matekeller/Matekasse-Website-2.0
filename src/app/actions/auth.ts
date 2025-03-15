@@ -1,6 +1,7 @@
 import { FormState, LoginFormSchema } from '../lib/definitions'
 import { logIntoMatekasse } from '../db/db'
 import { getSession, saveSession } from '../lib/session'
+import { mutate } from 'swr'
 
 export async function login(state: FormState, formData: FormData) {
   const validatedFields = LoginFormSchema.safeParse({
@@ -21,6 +22,7 @@ export async function login(state: FormState, formData: FormData) {
   if (loginResponse?.jwt !== null && loginResponse?.jwt !== undefined) {
     await saveSession(loginResponse.jwt)
     await getSession()
+    await mutate('/api/session', loginResponse.jwt)
   } else {
     return {
       message:

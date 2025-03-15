@@ -1,28 +1,24 @@
-import type { Metadata } from 'next'
+'use client'
+
 import './globals.css'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/homepage/AppSidebar'
 import { LoginForm } from '@/components/LoginForm'
-
-export const metadata: Metadata = {
-  title: 'Matekasse',
-  description: 'Mate den ganzen Tag!',
-}
+import { useSession } from '@/hooks/session'
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const { session } = useSession()
+
   return (
     <html lang="de" className="dark">
       <body>
         <SidebarProvider>
           <AppSidebar />
-          <SidebarInset>
-            <LoginForm />
-            {children}
-          </SidebarInset>
+          <SidebarInset>{session ? children : <LoginForm />}</SidebarInset>
         </SidebarProvider>
       </body>
     </html>

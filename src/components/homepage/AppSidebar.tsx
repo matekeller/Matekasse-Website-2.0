@@ -54,6 +54,7 @@ export function AppSidebar() {
           src={{ src: '/matemate.png', height: 150, width: 150 }}
           alt="MateMate Logo"
           className="self-center"
+          priority={true}
         />
         <span
           style={{

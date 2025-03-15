@@ -20,25 +20,37 @@ export function TransactionsArea(props: TransactionCardProps) {
   const { transactions } = props
   const isMobile = useIsMobile()
 
+  const toDateTime = (timestamp: string) =>
+    DateTime.fromISO(timestamp, {
+      zone: 'UTC',
+    }).setZone('Europe/Berlin')
+
+  const getRelative = (timestamp: string): string => {
+    const dateTime = toDateTime(timestamp)
+    const toFormat = dateTime.toFormat('EEEE, dd.LL.yyyy')
+    const toRelative = dateTime.toRelativeCalendar({ locale: 'en' })
+
+    if (dateTime.diffNow('days').days < -1 || toRelative == null) {
+      return toFormat
+    }
+
+    return toRelative[0].toUpperCase() + toRelative.slice(1) + ', ' + toFormat
+  }
+
+  const getDateTimeFormat = (timestamp: string): string =>
+    toDateTime(timestamp).toFormat('dd.LL.yyyy – HH:mm')
+
   return (
     <>
       {transactions.map((transaction, idx) => (
         <div key={transaction.id} className="mb-5">
           {(idx === 0 ||
-            DateTime.fromISO(transactions[idx - 1].timestamp, {
-              zone: 'UTC',
-            }).setZone('Europe/Berlin').day !==
-              DateTime.fromISO(transaction.timestamp, { zone: 'UTC' }).setZone(
-                'Europe/Berlin',
-              ).day) && (
+            toDateTime(transactions[idx - 1].timestamp).day !==
+              toDateTime(transaction.timestamp).day) && (
             <div className="flex w-full justify-evenly -mt-5">
               <Separator className="flex-1 self-center" />
               <span className="m-5 text-muted-foreground">
-                {DateTime.fromISO(transaction.timestamp, {
-                  zone: 'UTC',
-                })
-                  .setZone('Europe/Berlin')
-                  .toFormat('EEEE, dd.LL.yyyy')}
+                {getRelative(transaction.timestamp)}
               </span>
               <Separator className="flex-1 self-center" />
             </div>
@@ -188,11 +200,7 @@ export function TransactionsArea(props: TransactionCardProps) {
                     }
                 }
               >
-                {DateTime.fromISO(transaction.timestamp, {
-                  zone: 'UTC',
-                })
-                  .setZone('Europe/Berlin')
-                  .toFormat('dd.LL.yyyy - HH:mm')}
+                {getDateTimeFormat(transaction.timestamp)}
               </div>
             </div>
           </Card>

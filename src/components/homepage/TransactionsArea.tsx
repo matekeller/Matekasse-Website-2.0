@@ -134,11 +134,11 @@ export function TransactionsArea(props: TransactionCardProps) {
 
               {!transaction.deleted && (
                 <div
-                  className="flex items-center justify-right group justify-end"
+                  className="flex items-center justify-right justify-end"
                   style={{ gridArea: 'image' }}
                 >
                   <div
-                    className={`flex relative items-center justify-center ${
+                    className={`flex relative items-center justify-center group ${
                       isMobile ? ' right-2' : ''
                     }`}
                   >

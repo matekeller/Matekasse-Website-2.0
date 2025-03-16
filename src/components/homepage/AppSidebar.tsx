@@ -18,10 +18,10 @@ import { Button } from '../ui/button'
 import { Avatar, AvatarFallback } from '../ui/avatar'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '../ui/hover-card'
 import Link from 'next/link'
-import { deleteSession } from '@/app/lib/session'
 import { fetchOwnUserInfo } from '@/app/db/db'
 import { useSession } from '@/hooks/session'
 import { useEffect, useState } from 'react'
+import { logout } from '@/app/actions/auth'
 
 export function AppSidebar() {
   const { session } = useSession()
@@ -141,7 +141,7 @@ export function AppSidebar() {
           </div>
         </div>
 
-        <Button onClick={() => deleteSession} className="w-full cursor-pointer">
+        <Button onClick={() => void logout()} className="w-full cursor-pointer">
           Logout
         </Button>
       </SidebarFooter>

@@ -1,6 +1,6 @@
 import { FormState, LoginFormSchema } from '../lib/definitions'
 import { logIntoMatekasse } from '../db/db'
-import { getSession, saveSession } from '../lib/session'
+import { deleteSession, getSession, saveSession } from '../lib/session'
 import { mutate } from 'swr'
 
 export async function login(state: FormState, formData: FormData) {
@@ -29,4 +29,9 @@ export async function login(state: FormState, formData: FormData) {
         'An error occurred while logging in: ' + loginResponse?.errors?.join(),
     }
   }
+}
+
+export async function logout() {
+  await deleteSession()
+  await mutate('/api/session', undefined)
 }

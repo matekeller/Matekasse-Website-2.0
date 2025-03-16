@@ -55,7 +55,7 @@ export const logIntoMatekasse = async (
     if (response.ok && response.status === 200) {
       const rsp = (await response.json()) as SignInResponse
 
-      if (rsp.errors != undefined && rsp.data == null) {
+      if (rsp.errors !== undefined && rsp.data == null) {
         return {
           jwt: null,
           errors: rsp.errors.map((error: { message: string }) => error.message),
@@ -162,7 +162,7 @@ export const fetchOwnTransactions = async (
     if (response.ok && response.status === 200) {
       const rsp = (await response.json()) as OwnTransactionsResponse
 
-      if (rsp.errors != undefined) {
+      if (rsp.errors !== undefined) {
         return {
           data: null,
           errors: rsp.errors.map((error: { message: string }) => error.message),
@@ -230,7 +230,7 @@ export const fetchOfferings = async (): Promise<{
     if (response.ok && response.status === 200) {
       const rsp = (await response.json()) as OfferingsResponse
 
-      if (rsp.errors != undefined) {
+      if (rsp.errors !== undefined) {
         return {
           data: null,
           errors: rsp.errors.map((error: { message: string }) => error.message),
@@ -286,7 +286,7 @@ export const fetchOwnUserInfo = async (
     if (response.ok && response.status === 200) {
       const rsp = (await response.json()) as OwnUserInfoResponse
 
-      if (rsp.errors != undefined) {
+      if (rsp.errors !== undefined) {
         return {
           data: null,
           errors: rsp.errors.map((error: { message: string }) => error.message),

@@ -7,7 +7,9 @@ import { DateTime } from 'luxon'
 export const saveSession = async (jwt: string): Promise<void> => {
   const cookieStore = await cookies()
 
-  cookieStore.set('matekasseJWT', jwt)
+  cookieStore.set('matekasseJWT', jwt, {
+    expires: DateTime.now().plus({ hours: 24 }).toJSDate(),
+  })
 }
 
 export const getSession = async (): Promise<string | undefined> => {

@@ -2,7 +2,7 @@ export const runtime = 'edge'
 import { NextResponse } from 'next/server'
 import { getSession } from '@/app/lib/session'
 
-export async function GET() {
+export const GET = async () => {
   const session = await getSession()
 
   const response = NextResponse.json({ session })
@@ -14,7 +14,7 @@ export async function GET() {
   return response
 }
 
-export function OPTIONS() {
+export const OPTIONS = () => {
   const response = new NextResponse(null, { status: 204 })
 
   response.headers.set('Access-Control-Allow-Origin', '*')

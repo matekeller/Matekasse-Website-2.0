@@ -1,5 +1,7 @@
 'use client'
 
+import { useActionState, useEffect, useState } from 'react'
+import { Dialog } from './ui/dialog'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -12,13 +14,11 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { login } from '@/app/actions/auth'
-import { useActionState, useEffect, useState } from 'react'
-import { Dialog } from './ui/dialog'
 import { useSession } from '@/hooks/session'
-export function LoginForm({
+export const LoginForm = ({
   className,
   ...props
-}: React.ComponentPropsWithoutRef<'div'>) {
+}: React.ComponentPropsWithoutRef<'div'>) => {
   const [state, loginAction, pending] = useActionState(login, undefined)
   const { session } = useSession()
 

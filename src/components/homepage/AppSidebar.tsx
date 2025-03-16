@@ -1,5 +1,15 @@
 'use client'
 
+import { CupSoda, Euro, ReceiptEuro, Unplug } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { Separator } from '../ui/separator'
+import { Button } from '../ui/button'
+import { Avatar, AvatarFallback } from '../ui/avatar'
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '../ui/hover-card'
+import { fetchOwnUserInfo } from '@/app/db/db'
+import { useSession } from '@/hooks/session'
 import {
   Sidebar,
   SidebarContent,
@@ -11,19 +21,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
-import { CupSoda, Euro, ReceiptEuro, Unplug } from 'lucide-react'
-import Image from 'next/image'
-import { Separator } from '../ui/separator'
-import { Button } from '../ui/button'
-import { Avatar, AvatarFallback } from '../ui/avatar'
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '../ui/hover-card'
-import Link from 'next/link'
-import { fetchOwnUserInfo } from '@/app/db/db'
-import { useSession } from '@/hooks/session'
-import { useEffect, useState } from 'react'
 import { logout } from '@/app/actions/auth'
 
-export function AppSidebar() {
+export const AppSidebar = () => {
   const { session } = useSession()
 
   const [userInfo, setUserInfo] = useState<{

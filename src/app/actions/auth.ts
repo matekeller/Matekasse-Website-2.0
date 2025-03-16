@@ -1,9 +1,9 @@
+import { mutate } from 'swr'
 import { FormState, LoginFormSchema } from '../lib/definitions'
 import { logIntoMatekasse } from '../db/db'
 import { deleteSession, getSession, saveSession } from '../lib/session'
-import { mutate } from 'swr'
 
-export async function login(state: FormState, formData: FormData) {
+export const login = async (state: FormState, formData: FormData) => {
   const validatedFields = LoginFormSchema.safeParse({
     username: formData.get('username'),
     password: formData.get('password'),
@@ -31,7 +31,7 @@ export async function login(state: FormState, formData: FormData) {
   }
 }
 
-export async function logout() {
+export const logout = async () => {
   await deleteSession()
   await mutate('/api/session', undefined)
 }

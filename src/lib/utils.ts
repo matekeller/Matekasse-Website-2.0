@@ -1,11 +1,14 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
-export function cn(...inputs: ClassValue[]) {
+export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs))
 }
-
-export function assert(condition: boolean, msg?: string): asserts condition {
+type Assert = (condition: unknown, message?: string) => asserts condition
+export const assert: Assert = (
+  condition: unknown,
+  msg?: string,
+): asserts condition => {
   if (!condition) {
     throw Error(msg)
   }

@@ -1,6 +1,8 @@
+import eslintPluginPrettier from 'eslint-plugin-prettier/recommended'
+import eslintPluginReact from 'eslint-plugin-react'
+import eslintPluginImport from 'eslint-plugin-import'
 import globals from "globals"
 import tseslint from 'typescript-eslint'
-import eslintPluginPrettier from 'eslint-plugin-prettier/recommended'
 
 const eslintConfig = [
   {
@@ -8,7 +10,10 @@ const eslintConfig = [
   },
   ...tseslint.configs.strictTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
+  eslintPluginReact.configs.flat.recommended,
+  eslintPluginReact.configs.flat['jsx-runtime'],
   eslintPluginPrettier,
+  eslintPluginImport.flatConfigs.recommended,
   {
     languageOptions: {
       globals: globals.browser,
@@ -22,7 +27,12 @@ const eslintConfig = [
       }
     },
     files: ['**/*.ts', '**/*.tsx'],
+    plugins: {
+     eslintPluginReact,
+     eslintPluginPrettier,
+    },
     rules: {
+      'func-style': ['error', 'expression'],
       'no-void': 'off',
       '@typescript-eslint/restrict-plus-operands': ['error', { allowAny: true }],
       'arrow-body-style': ['off', 'never'],
@@ -36,9 +46,17 @@ const eslintConfig = [
         {
           'singleQuote': true,
           'semi': false,
-          'experimentalTernaries': true
+          'experimentalTernaries': true,
         }
-      ]
+      ],
+      'import/order': ['error'],
+      'import/no-unresolved': ['off'], // buggy?
+      'react/function-component-definition': ['error', { namedComponents: ['arrow-function', 'function-declaration'] }],
+    },
+    settings: {
+      react: {
+        version: 'detect'
+      }
     }
   }
 ]

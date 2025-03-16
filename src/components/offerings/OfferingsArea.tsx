@@ -1,5 +1,5 @@
 'use client'
-import { DBOffering } from '@/app/db/db'
+import Image from 'next/image'
 import {
   Card,
   CardDescription,
@@ -7,14 +7,14 @@ import {
   CardHeader,
   CardTitle,
 } from '../ui/card'
-import Image from 'next/image'
 import { Separator } from '../ui/separator'
+import { DBOffering } from '@/app/db/db'
 
 export interface OfferingsAreaProps {
   offerings: DBOffering[]
 }
 
-export function OfferingsArea(props: OfferingsAreaProps) {
+export const OfferingsArea = (props: OfferingsAreaProps) => {
   let { offerings } = props
 
   const offeringsDiscontinued = offerings.filter(

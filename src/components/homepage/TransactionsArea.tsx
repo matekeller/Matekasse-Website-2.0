@@ -1,4 +1,6 @@
 import Image from 'next/image'
+import { DateTime } from 'luxon'
+import { Euro } from 'lucide-react'
 import {
   Card,
   CardDescription,
@@ -6,17 +8,15 @@ import {
   CardHeader,
   CardTitle,
 } from '../ui/card'
-import { Transaction } from '@/app/page'
-import { DateTime } from 'luxon'
-import { Euro } from 'lucide-react'
-import { useIsMobile } from '@/hooks/use-mobile'
 import { Separator } from '../ui/separator'
+import { Transaction } from '@/app/page'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 export interface TransactionCardProps {
   transactions: Transaction[]
 }
 
-export function TransactionsArea(props: TransactionCardProps) {
+export const TransactionsArea = (props: TransactionCardProps) => {
   const { transactions } = props
   const isMobile = useIsMobile()
 

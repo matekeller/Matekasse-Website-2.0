@@ -1,5 +1,7 @@
 'use client'
 export const runtime = 'edge'
+import { useEffect, useState } from 'react'
+import { DBOffering, fetchOfferings } from '../db/db'
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -9,8 +11,6 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
-import { useEffect, useState } from 'react'
-import { DBOffering, fetchOfferings } from '../db/db'
 import { OfferingsArea } from '@/components/offerings/OfferingsArea'
 
 export default function Home() {

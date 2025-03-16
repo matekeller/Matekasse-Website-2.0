@@ -1,5 +1,5 @@
-import { assert } from '@/lib/utils'
 import * as gql from 'gql-query-builder'
+import { assert } from '@/lib/utils'
 
 export interface DBOffering {
   name: string

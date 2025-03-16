@@ -1,5 +1,13 @@
 'use client'
 export const runtime = 'edge'
+import { Cat } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useInView } from 'react-intersection-observer'
+import {
+  DBTransactionsPage,
+  fetchOfferings,
+  fetchOwnTransactions,
+} from './db/db'
 import { TransactionsArea } from '@/components/homepage/TransactionsArea'
 import {
   Breadcrumb,
@@ -10,15 +18,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import {
-  DBTransactionsPage,
-  fetchOfferings,
-  fetchOwnTransactions,
-} from './db/db'
-import { useEffect, useState } from 'react'
 import { useSession } from '@/hooks/session'
-import { Cat } from 'lucide-react'
-import { useInView } from 'react-intersection-observer'
 
 export interface Transaction {
   id: number

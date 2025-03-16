@@ -3,11 +3,7 @@ export const runtime = 'edge'
 import { Cat } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
-import {
-  DBTransactionsPage,
-  fetchOfferings,
-  fetchOwnTransactions,
-} from './db/db'
+import { DBTransactionsPage, fetchOwnTransactions } from './db/db'
 import { TransactionsArea } from '@/components/homepage/TransactionsArea'
 import {
   Breadcrumb,
@@ -19,6 +15,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { useSession } from '@/hooks/session'
+import { getOfferingData } from '@/lib/middleware'
 
 export interface Transaction {
   id: number
@@ -104,31 +101,29 @@ export default function Home() {
 const getTransactions = async (
   pages: DBTransactionsPage[],
 ): Promise<Transaction[]> => {
-  const offerings = await fetchOfferings()
+  const offerings = await getOfferingData(pages)
 
   let transactions: Transaction[] = []
 
-  if (offerings.data != null) {
-    transactions = pages
-      .map((page) =>
-        page.edges.map((edge) => {
-          const offering = offerings.data?.find(
-            (offering) => offering.name === edge.node.offeringId,
-          )
-          return {
-            id: edge.node.id,
-            offeringId: edge.node.offeringId,
-            readableName: offering?.readableName ?? edge.node.offeringId,
-            imageUrl: offering?.imageUrl ?? '',
-            deleted: edge.node.deleted,
-            adminUsername: edge.node.admin.username,
-            pricePaidCents: edge.node.pricePaidCents,
-            timestamp: edge.node.timestamp,
-          }
-        }),
-      )
-      .flat()
-  }
+  transactions = pages
+    .map((page) =>
+      page.edges.map((edge) => {
+        const offering = offerings.find(
+          (offering) => offering.name === edge.node.offeringId,
+        )
+        return {
+          id: edge.node.id,
+          offeringId: edge.node.offeringId,
+          readableName: offering?.readableName ?? edge.node.offeringId,
+          imageUrl: offering?.imageUrl ?? '',
+          deleted: edge.node.deleted,
+          adminUsername: edge.node.admin.username,
+          pricePaidCents: edge.node.pricePaidCents,
+          timestamp: edge.node.timestamp,
+        }
+      }),
+    )
+    .flat()
 
   return transactions
 }

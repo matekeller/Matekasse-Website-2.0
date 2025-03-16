@@ -34,6 +34,7 @@ const eslintConfig = [
     rules: {
       'func-style': ['error', 'expression'],
       'no-void': 'off',
+      'eqeqeq': ['error', 'smart'],
       '@typescript-eslint/restrict-plus-operands': ['error', { allowAny: true }],
       'arrow-body-style': ['off', 'never'],
       '@typescript-eslint/no-confusing-void-expression': ['error', { ignoreArrowShorthand: true }],

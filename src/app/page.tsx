@@ -43,9 +43,10 @@ export default function Home() {
 
       if (transactionData.data == null) return
 
-      const serializedTransactions = await getTransactions([
-        transactionData.data,
-      ])
+      const serializedTransactions = await getTransactions(
+        [transactionData.data],
+        cursor,
+      )
 
       setTransactions(serializedTransactions)
       setCursor(transactionData.data.pageInfo.endCursor)
@@ -62,9 +63,10 @@ export default function Home() {
 
       if (moreTransactions.data == null) return
 
-      const serializedTransactions = await getTransactions([
-        moreTransactions.data,
-      ])
+      const serializedTransactions = await getTransactions(
+        [moreTransactions.data],
+        cursor,
+      )
 
       setTransactions((cur) => [...cur, ...serializedTransactions])
       setCursor(moreTransactions.data.pageInfo.endCursor)
@@ -100,8 +102,9 @@ export default function Home() {
 
 const getTransactions = async (
   pages: DBTransactionsPage[],
+  cursor?: number | null,
 ): Promise<Transaction[]> => {
-  const offerings = await getOfferingData(pages)
+  const offerings = await getOfferingData(pages, cursor)
 
   let transactions: Transaction[] = []
 

@@ -51,11 +51,6 @@ export const getOfferingData = async (
       }
     }
   }
-  if (expires !== null) {
-    console.log(
-      DateTime.fromISO(expires, { zone: 'UTC' }) > DateTime.now().toUTC(),
-    )
-  }
 
   if (offeringData.length === 0) {
     const dbOfferings = await fetchOfferings()

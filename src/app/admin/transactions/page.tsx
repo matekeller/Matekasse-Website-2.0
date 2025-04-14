@@ -89,7 +89,7 @@ export default function Home() {
             <BreadcrumbSeparator />
 
             <BreadcrumbItem className="hidden md:block">
-              <BreadcrumbLink>Offerings</BreadcrumbLink>
+              <BreadcrumbLink>All Transactions</BreadcrumbLink>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

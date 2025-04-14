@@ -1,33 +1,23 @@
 'use client'
 export const runtime = 'edge'
-import { Cat } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { redirect } from 'next/navigation'
 import { useInView } from 'react-intersection-observer'
-import { DBTransactionsPage, fetchOwnTransactions } from './db/db'
-import { TransactionsArea } from '@/components/homepage/TransactionsArea'
+import { Cat } from 'lucide-react'
+import { fetchAllTransactions, fetchOwnUserInfo } from '../../db/db'
 import {
   Breadcrumb,
+  BreadcrumbList,
   BreadcrumbItem,
   BreadcrumbLink,
-  BreadcrumbList,
+  BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
+import { Separator } from '@/components/ui/separator'
 import { useSession } from '@/hooks/session'
-import { getOfferingData } from '@/lib/middleware'
-
-export interface Transaction {
-  id: number
-  offeringId: string
-  readableName: string
-  imageUrl: string
-  deleted: boolean
-  payerUsername: string
-  adminUsername: string
-  pricePaidCents: number
-  timestamp: string
-}
+import { getTransactions, Transaction } from '@/app/page'
+import { TransactionsArea } from '@/components/homepage/TransactionsArea'
 
 export default function Home() {
   const { session } = useSession()
@@ -40,7 +30,15 @@ export default function Home() {
     if (!session) return
 
     const fetchData = async () => {
-      const transactionData = await fetchOwnTransactions(session)
+      const userInfoData = await fetchOwnUserInfo(session)
+
+      if (userInfoData.data == null) return
+
+      if (!userInfoData.data.isAdmin) {
+        redirect('/')
+      }
+
+      const transactionData = await fetchAllTransactions(session)
 
       if (transactionData.data == null) return
 
@@ -60,7 +58,7 @@ export default function Home() {
     if (!session || !inView || !cursor) return
 
     const fetchMoreTransactions = async () => {
-      const moreTransactions = await fetchOwnTransactions(session, cursor)
+      const moreTransactions = await fetchAllTransactions(session, cursor)
 
       if (moreTransactions.data == null) return
 
@@ -77,58 +75,33 @@ export default function Home() {
   }, [session, cursor, inView])
 
   return (
-    <main>
+    <>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 w-full">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 h-4" />
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem className="hidden md:block">
-              <BreadcrumbLink>Transactions</BreadcrumbLink>
+              <BreadcrumbLink>Admin</BreadcrumbLink>
+            </BreadcrumbItem>
+
+            <BreadcrumbSeparator />
+
+            <BreadcrumbItem className="hidden md:block">
+              <BreadcrumbLink>Offerings</BreadcrumbLink>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
       </header>
+
       <div className="flex flex-1 flex-col gap-4 p-4">
         <ScrollArea>
-          <TransactionsArea transactions={transactions} />
+          <TransactionsArea transactions={transactions} showPayer />
           {transactions.length !== 0 && (
             <Cat className="text-muted w-full h-50" ref={ref} />
           )}
         </ScrollArea>
       </div>
-    </main>
+    </>
   )
-}
-
-export const getTransactions = async (
-  pages: DBTransactionsPage[],
-  cursor?: number | null,
-): Promise<Transaction[]> => {
-  const offerings = await getOfferingData(pages, cursor)
-
-  let transactions: Transaction[] = []
-
-  transactions = pages
-    .map((page) =>
-      page.edges.map((edge) => {
-        const offering = offerings.find(
-          (offering) => offering.name === edge.node.offeringId,
-        )
-        return {
-          id: edge.node.id,
-          offeringId: edge.node.offeringId,
-          readableName: offering?.readableName ?? edge.node.offeringId,
-          imageUrl: offering?.imageUrl ?? '',
-          deleted: edge.node.deleted,
-          payerUsername: edge.node.payer.username,
-          adminUsername: edge.node.admin.username,
-          pricePaidCents: edge.node.pricePaidCents,
-          timestamp: edge.node.timestamp,
-        }
-      }),
-    )
-    .flat()
-
-  return transactions
 }

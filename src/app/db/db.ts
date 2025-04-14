@@ -21,6 +21,7 @@ export interface DBTransactionsPage {
 
 export interface DBTransaction {
   id: number
+  payer: { username: string }
   admin: { username: string }
   offeringId: string
   pricePaidCents: number
@@ -81,6 +82,112 @@ export const logIntoMatekasse = async (
   }
 }
 
+interface AllTransactionsResponse {
+  data: {
+    transactionsPaginated: {
+      edges: {
+        node: {
+          id: number
+          payer: {
+            username: string
+          }
+          admin: {
+            username: string
+          }
+          timestamp: string
+          offeringId: string
+          pricePaidCents: number
+          deleted: boolean
+        }
+      }[]
+      pageInfo: {
+        endCursor: number
+        hasNextPage: boolean
+      }
+    }
+  } | null
+  errors?: { message: string }[]
+}
+
+export const fetchAllTransactions = async (
+  jwt: string,
+  cursor?: number,
+): Promise<{
+  data: DBTransactionsPage | null
+  errors?: string[]
+}> => {
+  try {
+    const response = await fetchBackend(
+      { Accept: 'application/json', Authorization: jwt },
+      JSON.stringify(
+        gql.query({
+          operation: 'transactionsPaginated',
+          variables: { after: cursor ?? 1000000, first: 10 },
+          fields: [
+            {
+              operation: 'edges',
+              fields: [
+                {
+                  operation: 'node',
+                  fields: [
+                    'id',
+                    {
+                      operation: 'payer',
+                      fields: ['username'],
+                      variables: {},
+                    },
+                    {
+                      operation: 'admin',
+                      fields: ['username'],
+                      variables: {},
+                    },
+                    'offeringId',
+                    'pricePaidCents',
+                    'timestamp',
+                    'deleted',
+                  ],
+                  variables: {},
+                },
+              ],
+              variables: {},
+            },
+            {
+              operation: 'pageInfo',
+              fields: ['endCursor', 'hasNextPage'],
+              variables: {},
+            },
+          ],
+        }),
+      ),
+    )
+
+    if (response.ok && response.status === 200) {
+      const rsp = (await response.json()) as AllTransactionsResponse
+
+      if (rsp.errors !== undefined) {
+        return {
+          data: null,
+          errors: rsp.errors.map((error: { message: string }) => error.message),
+        }
+      }
+
+      assert(rsp.data != null)
+
+      return { data: rsp.data.transactionsPaginated }
+    } else {
+      const rsp = (await response.json()) as AllTransactionsResponse
+
+      return {
+        data: null,
+        errors: rsp.errors?.map((error: { message: string }) => error.message),
+      }
+    }
+  } catch (e) {
+    console.error(e)
+    return { data: null, errors: ['Error while fetching all transactions'] }
+  }
+}
+
 interface OwnTransactionsResponse {
   data: {
     me: {
@@ -88,6 +195,9 @@ interface OwnTransactionsResponse {
         edges: {
           node: {
             id: number
+            payer: {
+              username: string
+            }
             admin: {
               username: string
             }
@@ -132,6 +242,11 @@ export const fetchOwnTransactions = async (
                       operation: 'node',
                       fields: [
                         'id',
+                        {
+                          operation: 'payer',
+                          fields: ['username'],
+                          variables: {},
+                        },
                         {
                           operation: 'admin',
                           fields: ['username'],
@@ -260,6 +375,7 @@ interface OwnUserInfoResponse {
       username: string
       fullName: string
       balance: number
+      isAdmin: boolean
     }
   } | null
   errors?: { message: string }[]
@@ -268,7 +384,12 @@ interface OwnUserInfoResponse {
 export const fetchOwnUserInfo = async (
   jwt: string,
 ): Promise<{
-  data: { username: string; fullName: string; balance: number } | null
+  data: {
+    username: string
+    fullName: string
+    balance: number
+    isAdmin: boolean
+  } | null
   errors?: string[]
 }> => {
   try {
@@ -277,7 +398,7 @@ export const fetchOwnUserInfo = async (
       JSON.stringify(
         gql.query({
           operation: 'me',
-          fields: ['username', 'fullName', 'balance'],
+          fields: ['username', 'fullName', 'balance', 'isAdmin'],
           variables: {},
         }),
       ),

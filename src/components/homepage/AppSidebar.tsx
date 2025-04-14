@@ -1,6 +1,13 @@
 'use client'
 
-import { CupSoda, Euro, ReceiptEuro, Unplug } from 'lucide-react'
+import {
+  ChevronDown,
+  ChevronUp,
+  CupSoda,
+  Euro,
+  ReceiptEuro,
+  Unplug,
+} from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -8,6 +15,11 @@ import { Separator } from '../ui/separator'
 import { Button } from '../ui/button'
 import { Avatar, AvatarFallback } from '../ui/avatar'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '../ui/hover-card'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '../ui/collapsible'
 import { fetchOwnUserInfo } from '@/app/db/db'
 import { useSession } from '@/hooks/session'
 import {
@@ -16,6 +28,7 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -23,14 +36,17 @@ import {
 } from '@/components/ui/sidebar'
 import { logout } from '@/app/actions/auth'
 
+interface UserInfo {
+  username: string
+  fullName: string
+  balance: number
+  isAdmin: boolean
+}
+
 export const AppSidebar = () => {
   const { session } = useSession()
 
-  const [userInfo, setUserInfo] = useState<{
-    username: string
-    fullName: string
-    balance: number
-  } | null>(null)
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
   const nameAbbr = getNameAbbreviation(userInfo?.fullName)
 
   useEffect(() => {
@@ -66,47 +82,11 @@ export const AppSidebar = () => {
         </span>
       </SidebarHeader>
       <Separator />
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="/">
-                    <ReceiptEuro />
-                    <span>Transactions</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              {/* <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="stats">
-                    <LucideChartNoAxesCombined />
-                    <span>Statistics</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem> */}
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="offerings">
-                    <CupSoda />
-                    <span>Offerings</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <Separator />
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="https://api.matekasse.de/graphiql">
-                    <Unplug />
-                    <span>API</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
+
+      {userInfo?.isAdmin ?
+        <AdminUserSideBarContent />
+      : <StandardUserSideBarContent />}
+
       <SidebarFooter>
         <Separator />
         <div className="flex items-center gap-3">
@@ -161,4 +141,138 @@ const getNameAbbreviation = (
   }
 
   return undefined
+}
+
+const StandardUserSideBarContent = () => {
+  return (
+    <SidebarContent>
+      <SidebarGroup>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="/">
+                  <ReceiptEuro />
+                  <span>Transactions</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            {/* <SidebarMenuItem>
+          <SidebarMenuButton asChild>
+            <Link href="stats">
+              <LucideChartNoAxesCombined />
+              <span>Statistics</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem> */}
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="offerings">
+                  <CupSoda />
+                  <span>Offerings</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <Separator />
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="https://api.matekasse.de/graphiql">
+                  <Unplug />
+                  <span>API</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    </SidebarContent>
+  )
+}
+
+const AdminUserSideBarContent = () => {
+  return (
+    <SidebarContent>
+      <Collapsible defaultOpen className="group/collapsible">
+        <SidebarGroup>
+          <SidebarGroupLabel asChild>
+            <CollapsibleTrigger>
+              Admin
+              <ChevronUp className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
+            </CollapsibleTrigger>
+          </SidebarGroupLabel>
+          <CollapsibleContent>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href="/admin/transactions">
+                      <ReceiptEuro />
+                      <span>All Transactions</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </CollapsibleContent>
+        </SidebarGroup>
+      </Collapsible>
+
+      <Collapsible defaultOpen={false} className="group/collapsible">
+        <SidebarGroup>
+          <SidebarGroupLabel asChild>
+            <CollapsibleTrigger>
+              Pleb
+              <ChevronDown className="ml-auto transition-transform group-data-[state=closed]/collapsible:rotate-180" />
+            </CollapsibleTrigger>
+          </SidebarGroupLabel>
+          <CollapsibleContent>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href="/">
+                      <ReceiptEuro />
+                      <span>Transactions</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                {/* <SidebarMenuItem>
+          <SidebarMenuButton asChild>
+            <Link href="stats">
+              <LucideChartNoAxesCombined />
+              <span>Statistics</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem> */}
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href="offerings">
+                      <CupSoda />
+                      <span>Offerings</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </CollapsibleContent>
+        </SidebarGroup>
+      </Collapsible>
+
+      <SidebarGroup>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <Separator />
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="https://api.matekasse.de/graphiql">
+                  <Unplug />
+                  <span>API</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    </SidebarContent>
+  )
 }

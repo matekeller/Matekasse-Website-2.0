@@ -14,10 +14,11 @@ import { useIsMobile } from '@/hooks/use-mobile'
 
 export interface TransactionCardProps {
   transactions: Transaction[]
+  showPayer?: boolean
 }
 
 export const TransactionsArea = (props: TransactionCardProps) => {
-  const { transactions } = props
+  const { transactions, showPayer } = props
   const isMobile = useIsMobile()
 
   const toDateTime = (timestamp: string) =>
@@ -106,6 +107,21 @@ export const TransactionsArea = (props: TransactionCardProps) => {
                     }
                     className={transaction.deleted ? 'text-muted' : undefined}
                   >
+                    {showPayer && (
+                      <>
+                        paid by{' '}
+                        <span
+                          className={
+                            transaction.deleted ? 'text-muted' : (
+                              'text-accent-foreground'
+                            )
+                          }
+                        >
+                          @{transaction.payerUsername}
+                        </span>
+                        <br />
+                      </>
+                    )}
                     authorized by{' '}
                     <span
                       className={

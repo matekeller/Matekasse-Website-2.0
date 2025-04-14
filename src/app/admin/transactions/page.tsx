@@ -16,8 +16,9 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
 import { useSession } from '@/hooks/session'
-import { getTransactions, Transaction } from '@/app/page'
+import { Transaction } from '@/app/page'
 import { TransactionsArea } from '@/components/homepage/TransactionsArea'
+import { getTransactions } from '@/lib/utils'
 
 export default function Home() {
   const { session } = useSession()

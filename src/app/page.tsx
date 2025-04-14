@@ -3,7 +3,7 @@ export const runtime = 'edge'
 import { Cat } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
-import { DBTransactionsPage, fetchOwnTransactions } from './db/db'
+import { fetchOwnTransactions } from './db/db'
 import { TransactionsArea } from '@/components/homepage/TransactionsArea'
 import {
   Breadcrumb,
@@ -15,7 +15,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { useSession } from '@/hooks/session'
-import { getOfferingData } from '@/lib/middleware'
+import { getTransactions } from '@/lib/utils'
 
 export interface Transaction {
   id: number
@@ -99,36 +99,4 @@ export default function Home() {
       </div>
     </main>
   )
-}
-
-export const getTransactions = async (
-  pages: DBTransactionsPage[],
-  cursor?: number | null,
-): Promise<Transaction[]> => {
-  const offerings = await getOfferingData(pages, cursor)
-
-  let transactions: Transaction[] = []
-
-  transactions = pages
-    .map((page) =>
-      page.edges.map((edge) => {
-        const offering = offerings.find(
-          (offering) => offering.name === edge.node.offeringId,
-        )
-        return {
-          id: edge.node.id,
-          offeringId: edge.node.offeringId,
-          readableName: offering?.readableName ?? edge.node.offeringId,
-          imageUrl: offering?.imageUrl ?? '',
-          deleted: edge.node.deleted,
-          payerUsername: edge.node.payer.username,
-          adminUsername: edge.node.admin.username,
-          pricePaidCents: edge.node.pricePaidCents,
-          timestamp: edge.node.timestamp,
-        }
-      }),
-    )
-    .flat()
-
-  return transactions
 }

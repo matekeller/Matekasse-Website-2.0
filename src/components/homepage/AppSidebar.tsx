@@ -7,6 +7,7 @@ import {
   Euro,
   ReceiptEuro,
   Unplug,
+  Users,
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -115,6 +116,7 @@ export const AppSidebar = () => {
                 new Intl.NumberFormat('de-DE', {
                   style: 'decimal',
                   minimumFractionDigits: 2,
+                  signDisplay: 'negative',
                 }).format((-1 * (userInfo?.balance ?? 0)) / 100)
               : ''}
             </span>
@@ -208,6 +210,15 @@ const AdminUserSideBarContent = () => {
                     <Link href="/admin/transactions">
                       <ReceiptEuro />
                       <span>All Transactions</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href="/admin/users">
+                      <Users />
+                      <span>Users</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

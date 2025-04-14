@@ -12,12 +12,12 @@ import { Separator } from '../ui/separator'
 import { Transaction } from '@/app/page'
 import { useIsMobile } from '@/hooks/use-mobile'
 
-export interface TransactionCardProps {
+export interface TransactionsAreaProps {
   transactions: Transaction[]
   showPayer?: boolean
 }
 
-export const TransactionsArea = (props: TransactionCardProps) => {
+export const TransactionsArea = (props: TransactionsAreaProps) => {
   const { transactions, showPayer } = props
   const isMobile = useIsMobile()
 

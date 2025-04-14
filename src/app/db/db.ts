@@ -427,7 +427,82 @@ export const fetchOwnUserInfo = async (
     }
   } catch (e) {
     console.error(e)
-    return { data: null, errors: ['Error while own user info'] }
+    return { data: null, errors: ['Error while fetching own user info'] }
+  }
+}
+
+interface UsersResponse {
+  data: {
+    users: {
+      username: string
+      fullName: string
+      bluecardId: string
+      isAdmin: boolean
+      smartcards: { smartcardId: string }[]
+      balance: number
+    }[]
+  } | null
+  errors?: { message: string }[]
+}
+
+export const fetchUsers = async (
+  jwt: string,
+): Promise<{
+  data:
+    | {
+        username: string
+        fullName: string
+        bluecardId: string
+        isAdmin: boolean
+        smartcards: { smartcardId: string }[]
+        balance: number
+      }[]
+    | null
+  errors?: string[]
+}> => {
+  try {
+    const response = await fetchBackend(
+      { Accept: 'application/json', Authorization: jwt },
+      JSON.stringify(
+        gql.query({
+          operation: 'users',
+          fields: [
+            'username',
+            'fullName',
+            'bluecardId',
+            'isAdmin',
+            { operation: 'smartcards', fields: ['smartcardId'], variables: {} },
+            'balance',
+          ],
+          variables: {},
+        }),
+      ),
+    )
+
+    if (response.ok && response.status === 200) {
+      const rsp = (await response.json()) as UsersResponse
+
+      if (rsp.errors !== undefined) {
+        return {
+          data: null,
+          errors: rsp.errors.map((error: { message: string }) => error.message),
+        }
+      }
+
+      assert(rsp.data != null)
+
+      return { data: rsp.data.users }
+    } else {
+      const rsp = (await response.json()) as UsersResponse
+
+      return {
+        data: null,
+        errors: rsp.errors?.map((error: { message: string }) => error.message),
+      }
+    }
+  } catch (e) {
+    console.error(e)
+    return { data: null, errors: ['Error while fetching users'] }
   }
 }
 

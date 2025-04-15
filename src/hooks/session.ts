@@ -12,6 +12,10 @@ const fetchSession = async () => {
 }
 
 export const useSession = () => {
-  const { data: session, error } = useSWR('/api/session', fetchSession)
-  return { session, error }
+  const {
+    data: session,
+    error,
+    isLoading,
+  } = useSWR('/api/session', fetchSession)
+  return { session, error, isLoading }
 }

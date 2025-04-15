@@ -11,14 +11,16 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const { session } = useSession()
+  const { session, isLoading } = useSession()
 
   return (
     <html lang="de" className="dark">
       <body>
         <SidebarProvider>
           <AppSidebar />
-          <SidebarInset>{session ? children : <LoginForm />}</SidebarInset>
+          {!isLoading && (
+            <SidebarInset>{session ? children : <LoginForm />}</SidebarInset>
+          )}
         </SidebarProvider>
       </body>
     </html>

@@ -81,7 +81,7 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="flex flex-1 flex-col gap-4 p-4">
+      <div className="flex flex-1 flex-col p-4">
         <ScrollArea>
           <UsersArea
             users={users.filter(

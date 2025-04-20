@@ -587,6 +587,63 @@ export const fetchUsers = async (
   }
 }
 
+interface UpdateBluecardIDResponse {
+  data: {
+    updateBluecardId: 'updated'
+  } | null
+  errors?: { message: string }[]
+}
+
+export const updateBluecardID = async (
+  jwt: string,
+  oldBluecardID: string,
+  newBluecardID: string,
+): Promise<{
+  data: { updateBluecardId: 'updated' } | null
+  errors?: string[]
+}> => {
+  try {
+    const response = await fetchBackend(
+      { Accept: 'application/json', Authorization: jwt },
+      JSON.stringify(
+        gql.mutation({
+          operation: 'updateBluecardId',
+          variables: {
+            bluecardIdOld: oldBluecardID,
+            bluecardIdNew: newBluecardID,
+          },
+          fields: [],
+        }),
+      ),
+    )
+
+    if (response.ok && response.status === 200) {
+      const rsp = (await response.json()) as UpdateBluecardIDResponse
+
+      if (rsp.errors !== undefined) {
+        return {
+          data: null,
+          errors: rsp.errors.map((error: { message: string }) => error.message),
+        }
+      }
+
+      assert(rsp.data != null)
+
+      return { data: rsp.data }
+    } else {
+      const rsp = (await response.json()) as UpdateBluecardIDResponse
+
+      return {
+        data: null,
+        errors: rsp.errors?.map((error: { message: string }) => error.message),
+      }
+    }
+  } catch (e) {
+    console.error(e)
+    return { data: null, errors: ['Error while updating Bluecard ID'] }
+  }
+}
+
 const fetchBackend = async (
   headers: Record<string, string>,
   body: string,

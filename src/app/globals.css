@@ -3,7 +3,6 @@
 @import "tailwindcss/utilities";
 @tailwind utilities;
 
-
 @custom-variant dark (&:is(.dark *));
 
 @theme {
@@ -62,7 +61,6 @@
     --foreground: #ededed;
   }
 }
-
 
 :root {
   --background: oklch(1 0 0);
@@ -173,7 +171,6 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 }
-
 
 @layer base {
   * {

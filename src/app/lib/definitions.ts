@@ -10,3 +10,9 @@ export type FormState =
       message?: string
     }
   | undefined
+
+export const UpdateBluecardIDFormSchema = z.object({
+  oldBluecardID: z.string().trim(),
+  newBluecardID: z.string().trim(),
+  session: z.string().trim(),
+})

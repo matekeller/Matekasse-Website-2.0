@@ -12,6 +12,7 @@ import {
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Separator } from '../ui/separator'
 import { Button } from '../ui/button'
 import { Avatar, AvatarFallback } from '../ui/avatar'
@@ -49,6 +50,7 @@ export const AppSidebar = () => {
 
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
   const nameAbbr = getNameAbbreviation(userInfo?.fullName)
+  const router = useRouter()
 
   useEffect(() => {
     if (!session) return
@@ -70,8 +72,9 @@ export const AppSidebar = () => {
         <Image
           src={{ src: '/matemate.png', height: 150, width: 150 }}
           alt="MateMate Logo"
-          className="self-center"
+          className="self-center cursor-pointer"
           priority={true}
+          onClick={() => router.push('/')}
         />
         <span
           style={{
@@ -79,7 +82,7 @@ export const AppSidebar = () => {
           }}
           className="text-muted-foreground text-lg self-center font-semibold"
         >
-          MateMate
+          <Link href="/">MateMate</Link>
         </span>
       </SidebarHeader>
       <Separator />

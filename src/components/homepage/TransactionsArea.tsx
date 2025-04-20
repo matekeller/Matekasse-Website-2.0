@@ -74,7 +74,7 @@ export const TransactionsArea = (props: TransactionsAreaProps) => {
               }}
             >
               <div
-                className="flex flex-col place-content-between justify-self-start"
+                className="flex flex-col place-content-between"
                 style={{ gridArea: 'left' }}
               >
                 <CardHeader>

@@ -1,7 +1,12 @@
 import { DateTime } from 'luxon'
-import { DBOffering, DBTransactionsPage, fetchOfferings } from '@/app/db/db'
+import {
+  DBOffering,
+  DBTransaction,
+  DBTransactionsPage,
+  fetchOfferings,
+} from '@/app/db/db'
 
-export const getOfferingData = async (
+export const getOfferingDataFromPages = async (
   pages: DBTransactionsPage[],
   cursor?: number | null,
 ): Promise<DBOffering[]> => {
@@ -15,6 +20,28 @@ export const getOfferingData = async (
       .flat(),
   )
 
+  return await fetchOfferingsFromStorage(
+    Array.from(offeringIds),
+    pages.map((page) => page.edges.map((edge) => edge.node)).flat(),
+    cursor,
+  )
+}
+
+export const getOfferingDataFromTransactions = async (
+  transactions: DBTransaction[],
+): Promise<DBOffering[]> => {
+  const offeringIds = new Set<string>(
+    transactions.map((transaction) => transaction.offeringId),
+  )
+
+  return await fetchOfferingsFromStorage(Array.from(offeringIds), transactions)
+}
+
+const fetchOfferingsFromStorage = async (
+  offeringIds: string[],
+  transactions: DBTransaction[],
+  cursor?: number | null,
+): Promise<DBOffering[]> => {
   let offeringData: DBOffering[] = []
 
   const expires = localStorage.getItem('expires')
@@ -28,10 +55,9 @@ export const getOfferingData = async (
 
       if (offering != null) {
         const offeringObject = JSON.parse(offering) as DBOffering
-        const offeringInfoFromTransactions = pages
-          .map((page) => page.edges)
-          .flat()
-          .find((edge) => edge.node.offeringId === offeringObject.name)?.node
+        const offeringInfoFromTransactions = transactions.find(
+          (edge) => edge.offeringId === offeringObject.name,
+        )
 
         // important: fetch new if price differs in the most recent transactions (=> cursor === null)
         if (

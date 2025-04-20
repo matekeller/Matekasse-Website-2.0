@@ -1,8 +1,11 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { getOfferingData } from './middleware'
+import {
+  getOfferingDataFromPages,
+  getOfferingDataFromTransactions,
+} from './middleware'
 import { Transaction } from '@/app/page'
-import { DBTransactionsPage } from '@/app/db/db'
+import { DBTransaction, DBTransactionsPage } from '@/app/db/db'
 
 export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs))
@@ -21,7 +24,7 @@ export const getTransactions = async (
   pages: DBTransactionsPage[],
   cursor?: number | null,
 ): Promise<Transaction[]> => {
-  const offerings = await getOfferingData(pages, cursor)
+  const offerings = await getOfferingDataFromPages(pages, cursor)
 
   let transactions: Transaction[] = []
 
@@ -45,6 +48,33 @@ export const getTransactions = async (
       }),
     )
     .flat()
+
+  return transactions
+}
+
+export const getTransactionsFromRaw = async (
+  dbTransactions: DBTransaction[],
+): Promise<Transaction[]> => {
+  const offerings = await getOfferingDataFromTransactions(dbTransactions)
+
+  let transactions: Transaction[] = []
+
+  transactions = dbTransactions.map((transaction) => {
+    const offering = offerings.find(
+      (offering) => offering.name === transaction.offeringId,
+    )
+    return {
+      id: transaction.id,
+      offeringId: transaction.offeringId,
+      readableName: offering?.readableName ?? transaction.offeringId,
+      imageUrl: offering?.imageUrl ?? '',
+      deleted: transaction.deleted,
+      payerUsername: transaction.payer.username,
+      adminUsername: transaction.admin.username,
+      pricePaidCents: transaction.pricePaidCents,
+      timestamp: transaction.timestamp,
+    }
+  })
 
   return transactions
 }

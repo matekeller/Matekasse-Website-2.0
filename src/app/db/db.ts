@@ -301,6 +301,87 @@ export const fetchOwnTransactions = async (
   }
 }
 
+interface UserTransactionsResponse {
+  data: {
+    transactionsByUser: {
+      id: number
+      payer: {
+        username: string
+      }
+      admin: {
+        username: string
+      }
+      timestamp: string
+      offeringId: string
+      pricePaidCents: number
+      deleted: boolean
+    }[]
+  } | null
+  errors?: { message: string }[]
+}
+
+export const fetchUserTransactions = async (
+  jwt: string,
+  username: string,
+): Promise<{
+  data: DBTransaction[] | null
+  errors?: string[]
+}> => {
+  try {
+    const response = await fetchBackend(
+      { Accept: 'application/json', Authorization: jwt },
+      JSON.stringify(
+        gql.query({
+          operation: 'transactionsByUser',
+          variables: { username },
+          fields: [
+            'id',
+            {
+              operation: 'payer',
+              fields: ['username'],
+              variables: {},
+            },
+            {
+              operation: 'admin',
+              fields: ['username'],
+              variables: {},
+            },
+            'offeringId',
+            'pricePaidCents',
+            'timestamp',
+            'deleted',
+          ],
+        }),
+      ),
+    )
+
+    if (response.ok && response.status === 200) {
+      const rsp = (await response.json()) as UserTransactionsResponse
+
+      if (rsp.errors !== undefined) {
+        return {
+          data: null,
+          errors: rsp.errors.map((error: { message: string }) => error.message),
+        }
+      }
+
+      assert(rsp.data != null)
+
+      return { data: rsp.data.transactionsByUser }
+    } else {
+      const rsp = (await response.json()) as UserTransactionsResponse
+
+      return {
+        data: null,
+        errors: rsp.errors?.map((error: { message: string }) => error.message),
+      }
+    }
+  } catch (e) {
+    console.error(e)
+    return { data: null, errors: ['Error while fetching own transactions'] }
+  }
+}
+
 interface OfferingsResponse {
   data: {
     offerings: {

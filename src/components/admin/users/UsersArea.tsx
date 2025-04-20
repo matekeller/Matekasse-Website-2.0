@@ -1,5 +1,6 @@
 import { EllipsisVertical } from 'lucide-react'
 import { useActionState, useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 import { BarQRCodeScanner } from './Scanner'
 import { User } from '@/app/admin/users/page'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -108,6 +109,12 @@ const UserCard = (props: UserCardProps) => {
               </DropdownMenuItem>
 
               <DropdownMenuItem>Update password</DropdownMenuItem>
+
+              <DropdownMenuItem>
+                <Link href={`/admin/transactions/${user.username}`}>
+                  Transaction history
+                </Link>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

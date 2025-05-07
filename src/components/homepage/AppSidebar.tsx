@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  Boxes,
   ChevronDown,
   ChevronUp,
   CupSoda,
@@ -222,6 +223,15 @@ const AdminUserSideBarContent = () => {
                     <Link href="/admin/users">
                       <Users />
                       <span>Users</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href="/admin/inventory">
+                      <Boxes />
+                      <span>Inventory</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

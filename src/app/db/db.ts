@@ -644,6 +644,70 @@ export const updateBluecardID = async (
   }
 }
 
+interface UpdateInventoryResponse {
+  data: {
+    updateInventory: 'updated'
+  } | null
+  errors?: { message: string }[]
+}
+
+export const updateInventory = async (
+  jwt: string,
+  updates: { offeringId: string; amount: number }[],
+): Promise<{
+  data: { updateInventory: 'updated' } | null
+  errors?: string[]
+}> => {
+  try {
+    const response = await fetchBackend(
+      { Accept: 'application/json', Authorization: jwt },
+      JSON.stringify(
+        gql.mutation({
+          operation: 'updateInventory',
+          variables: {
+            updates: {
+              value: updates,
+              required: true,
+              list: true,
+              type: 'InventoryUpdate',
+            },
+          },
+          fields: [],
+        }),
+      ),
+    )
+
+    if (response.ok && response.status === 200) {
+      console.log(response)
+      const rsp = (await response.json()) as UpdateInventoryResponse
+
+      if (rsp.errors !== undefined) {
+        console.log(rsp.errors)
+        return {
+          data: null,
+          errors: rsp.errors.map((error: { message: string }) => error.message),
+        }
+      }
+
+      assert(rsp.data != null)
+
+      return { data: rsp.data }
+    } else {
+      const rsp = (await response.json()) as UpdateInventoryResponse
+
+      console.log(rsp.errors)
+
+      return {
+        data: null,
+        errors: rsp.errors?.map((error: { message: string }) => error.message),
+      }
+    }
+  } catch (e) {
+    console.error(e)
+    return { data: null, errors: ['Error while updating inventory'] }
+  }
+}
+
 const fetchBackend = async (
   headers: Record<string, string>,
   body: string,

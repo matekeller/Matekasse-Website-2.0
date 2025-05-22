@@ -16,6 +16,7 @@ export default function RootLayout({
   return (
     <html lang="de" className="dark">
       <body>
+        <meta name="apple-mobile-web-app-title" content="MateMate" />
         <SidebarProvider>
           <AppSidebar />
           {!isLoading && (

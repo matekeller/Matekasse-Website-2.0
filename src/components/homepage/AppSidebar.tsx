@@ -241,12 +241,12 @@ const AdminUserSideBarContent = () => {
         </SidebarGroup>
       </Collapsible>
 
-      <Collapsible defaultOpen={false} className="group/collapsible">
+      <Collapsible defaultOpen className="group/collapsible">
         <SidebarGroup>
           <SidebarGroupLabel asChild>
             <CollapsibleTrigger>
               Pleb
-              <ChevronDown className="ml-auto transition-transform group-data-[state=closed]/collapsible:rotate-180" />
+              <ChevronUp className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
             </CollapsibleTrigger>
           </SidebarGroupLabel>
           <CollapsibleContent>

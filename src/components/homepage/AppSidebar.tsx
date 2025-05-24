@@ -2,7 +2,6 @@
 
 import {
   Boxes,
-  ChevronDown,
   ChevronUp,
   CupSoda,
   Euro,

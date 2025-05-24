@@ -10,6 +10,7 @@ export interface DBOffering {
   discounted: boolean
   discontinued: boolean
   isFood: boolean
+  color: string
 }
 
 export interface DBTransactionsPage {
@@ -393,6 +394,7 @@ interface OfferingsResponse {
       discontinued: boolean
       discounted: boolean
       isFood: boolean
+      color: string
     }[]
   } | null
   errors?: { message: string }[]
@@ -417,6 +419,7 @@ export const fetchOfferings = async (): Promise<{
             'discontinued',
             'discounted',
             'isFood',
+            'color',
           ],
           variables: {},
         }),
@@ -678,11 +681,9 @@ export const updateInventory = async (
     )
 
     if (response.ok && response.status === 200) {
-      console.log(response)
       const rsp = (await response.json()) as UpdateInventoryResponse
 
       if (rsp.errors !== undefined) {
-        console.log(rsp.errors)
         return {
           data: null,
           errors: rsp.errors.map((error: { message: string }) => error.message),
@@ -695,8 +696,6 @@ export const updateInventory = async (
     } else {
       const rsp = (await response.json()) as UpdateInventoryResponse
 
-      console.log(rsp.errors)
-
       return {
         data: null,
         errors: rsp.errors?.map((error: { message: string }) => error.message),
@@ -705,6 +704,93 @@ export const updateInventory = async (
   } catch (e) {
     console.error(e)
     return { data: null, errors: ['Error while updating inventory'] }
+  }
+}
+
+interface UpdateOfferingResponse {
+  data: {
+    updateOffering: 'changed'
+  } | null
+  errors?: { message: string }[]
+}
+
+export const updateOffering = async (
+  jwt: string,
+  offeringName: string,
+  newReadableName?: string,
+  newPriceCents?: number,
+  newImageUrl?: string,
+  newColor?: string,
+  newDiscontinued?: boolean,
+  newDiscount?: boolean,
+  newIsFood?: boolean,
+): Promise<{
+  data: { updateOffering: 'changed' } | null
+  errors?: string[]
+}> => {
+  const fields: Map<string, string | number | boolean> = new Map<
+    string,
+    string | number | boolean
+  >().set('offeringName', offeringName)
+
+  if (newReadableName !== undefined) {
+    fields.set('newReadableName', newReadableName)
+  }
+  if (newPriceCents !== undefined) {
+    fields.set('newPriceCents', newPriceCents)
+  }
+  if (newImageUrl !== undefined) {
+    fields.set('newImageUrl', newImageUrl)
+  }
+  if (newColor !== undefined) {
+    fields.set('newColor', newColor)
+  }
+  if (newDiscontinued !== undefined) {
+    fields.set('newDiscontinued', newDiscontinued)
+  }
+  if (newDiscount !== undefined) {
+    fields.set('newDiscount', newDiscount)
+  }
+  if (newIsFood !== undefined) {
+    fields.set('newIsFood', newIsFood)
+  }
+
+  try {
+    const response = await fetchBackend(
+      { Accept: 'application/json', Authorization: jwt },
+      JSON.stringify(
+        gql.mutation({
+          operation: 'updateOffering',
+          variables: Object.fromEntries(fields),
+          fields: [],
+        }),
+      ),
+    )
+
+    if (response.ok && response.status === 200) {
+      const rsp = (await response.json()) as UpdateOfferingResponse
+
+      if (rsp.errors !== undefined) {
+        return {
+          data: null,
+          errors: rsp.errors.map((error: { message: string }) => error.message),
+        }
+      }
+
+      assert(rsp.data != null)
+
+      return { data: rsp.data }
+    } else {
+      const rsp = (await response.json()) as UpdateOfferingResponse
+
+      return {
+        data: null,
+        errors: rsp.errors?.map((error: { message: string }) => error.message),
+      }
+    }
+  } catch (e) {
+    console.error(e)
+    return { data: null, errors: ['Error while updating offering'] }
   }
 }
 

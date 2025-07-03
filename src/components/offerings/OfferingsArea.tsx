@@ -53,25 +53,33 @@ export const OfferingsArea = (props: OfferingsAreaProps) => {
       >
         {getCards(offerings, isAdmin, onUpdateOffering, session)}
       </div>
+      {isAdmin && (
+        <>
+          {offeringsDiscontinued.length !== 0 && (
+            <div className="flex w-full justify-evenly">
+              <Separator className="flex-1 self-center" />
+              <span className="m-5">Discontinued offerings</span>
+              <Separator className="flex-1 self-center" />
+            </div>
+          )}
 
-      {offeringsDiscontinued.length !== 0 && (
-        <div className="flex w-full justify-evenly">
-          <Separator className="flex-1 self-center" />
-          <span className="m-5">Discontinued offerings</span>
-          <Separator className="flex-1 self-center" />
-        </div>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns:
+                'repeat(auto-fill, minmax(clamp(0px, 350px, 100%), 1fr))',
+              gap: '1em',
+            }}
+          >
+            {getCards(
+              offeringsDiscontinued,
+              isAdmin,
+              onUpdateOffering,
+              session,
+            )}
+          </div>
+        </>
       )}
-
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns:
-            'repeat(auto-fill, minmax(clamp(0px, 350px, 100%), 1fr))',
-          gap: '1em',
-        }}
-      >
-        {getCards(offeringsDiscontinued, isAdmin, onUpdateOffering, session)}
-      </div>
     </>
   )
 }

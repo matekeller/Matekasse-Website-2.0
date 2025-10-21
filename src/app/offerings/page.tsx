@@ -36,7 +36,6 @@ export default function Home() {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log('fetsch')
       const offeringData = await fetchOfferings()
 
       if (offeringData.data == null) return

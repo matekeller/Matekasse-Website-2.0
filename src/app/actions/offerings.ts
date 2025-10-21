@@ -32,8 +32,6 @@ export const updateOffering = async (state: FormState, formData: FormData) => {
     session,
   } = validatedFields.data
 
-  console.log(validatedFields.data)
-
   const updateOfferingResponse = await updateMatekasseOffering(
     session,
     offeringName,

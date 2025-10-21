@@ -1,5 +1,5 @@
 import type { NextConfig } from 'next'
-import { setupDevPlatform } from '@cloudflare/next-on-pages/next-dev'
+import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare'
 
 const devOptions = {
   async rewrites() {
@@ -22,7 +22,7 @@ const devOptions = {
 }
 
 if (process.env.NODE_ENV === 'development') {
-  setupDevPlatform().catch(e => console.error(e));
+  initOpenNextCloudflareForDev().catch(e => console.error(e));
 }
 
 /** @type {import('next').NextConfig} */

@@ -21,12 +21,12 @@
       // The service should match the "name" of your worker
       "service": "matekasse2"
     },
-  ],
-  "r2_buckets": [
+  ]
+    // "r2_buckets": [
     // Create a R2 binding with the binding name "NEXT_INC_CACHE_R2_BUCKET"
     // {
     //   "binding": "NEXT_INC_CACHE_R2_BUCKET",
     //   "bucket_name": "<BUCKET_NAME>",
     // },
-  ]
+    // ]
 }

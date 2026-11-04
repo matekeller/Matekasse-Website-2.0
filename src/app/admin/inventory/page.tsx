@@ -2,7 +2,6 @@
 export const runtime = 'edge'
 import { redirect } from 'next/navigation'
 import { Fragment, useActionState, useEffect, useState } from 'react'
-import Image from 'next/image'
 import { Minus, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import {
@@ -23,6 +22,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { assert } from '@/lib/utils'
 import { updateInventory } from '@/app/actions/inventory'
 import { useDataVersion } from '@/hooks/data'
+import { OfferingImage } from '@/components/OfferingImage'
 
 export default function Page() {
   const { session } = useSession()
@@ -231,12 +231,9 @@ const InventoryItemCard = (props: InventoryItemCardProps) => {
         className={`w-full flex p-4 ${isMobile ? 'flex-col gap-4' : 'flex-row justify-between'}`}
       >
         <div className="flex flex-row gap-2">
-          <Image
-            src={{
-              src: item.imageUrl,
-              height: 100,
-              width: 100,
-            }}
+          <OfferingImage
+            src={item.imageUrl}
+            size={100}
             alt={item.readableName}
           />
           <div className="flex flex-col">

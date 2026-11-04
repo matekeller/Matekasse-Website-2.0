@@ -5,7 +5,7 @@ export interface DBOffering {
   name: string
   readableName: string
   priceCents: number
-  imageUrl: string
+  imageUrl: string | null
   inInventory: number
   discounted: boolean
   discontinued: boolean
@@ -398,7 +398,7 @@ interface OfferingsResponse {
       name: string
       readableName: string
       priceCents: number
-      imageUrl: string
+      imageUrl: string | null
       inInventory: number
       discontinued: boolean
       discounted: boolean

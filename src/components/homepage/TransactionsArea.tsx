@@ -11,6 +11,7 @@ import {
 import { Separator } from '../ui/separator'
 import { Transaction } from '@/app/page'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { OfferingImage } from '@/components/OfferingImage'
 
 export interface TransactionsAreaProps {
   transactions: Transaction[]
@@ -181,13 +182,10 @@ export const TransactionsArea = (props: TransactionsAreaProps) => {
                       alt="decorative star2"
                     />
                     {transaction.offeringId !== 'topup' ?
-                      <Image
-                        className="rotate-25 group-hover:animate-wiggle absolute max-w-none"
-                        src={{
-                          src: transaction.imageUrl,
-                          height: 120,
-                          width: 120,
-                        }}
+                      <OfferingImage
+                        className="rotate-25 group-hover:animate-wiggle absolute max-w-none text-background"
+                        src={transaction.imageUrl}
+                        size={120}
                         alt={transaction.offeringId}
                       />
                     : <Euro

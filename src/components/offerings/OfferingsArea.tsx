@@ -23,6 +23,7 @@ import { Input } from '../ui/input'
 import { Checkbox } from '../ui/checkbox'
 import { DBOffering } from '@/app/db/db'
 import { updateOffering } from '@/app/actions/offerings'
+import { OfferingImage } from '@/components/OfferingImage'
 
 export interface OfferingsAreaProps {
   isAdmin: boolean
@@ -174,13 +175,10 @@ const OfferingCard = (props: OfferingCardProps) => {
               alt="decorative star2"
             />
 
-            <Image
-              className="rotate-25 group-hover:animate-wiggle absolute max-w-none"
-              src={{
-                src: offering.imageUrl,
-                height: 120,
-                width: 120,
-              }}
+            <OfferingImage
+              className="rotate-25 group-hover:animate-wiggle absolute max-w-none text-background"
+              src={offering.imageUrl}
+              size={120}
               alt={offering.name}
             />
           </div>
@@ -266,7 +264,7 @@ const UpdateOfferingDialog = (props: UpdateOfferingDialogProps) => {
                   <Input
                     id="newImageUrl"
                     name="newImageUrl"
-                    defaultValue={offering.imageUrl}
+                    defaultValue={offering.imageUrl ?? ''}
                     disabled={pending}
                   />
 
@@ -317,6 +315,7 @@ const UpdateOfferingDialog = (props: UpdateOfferingDialogProps) => {
 
               <DialogFooter>
                 <Button
+                  type="button"
                   variant="secondary"
                   onClick={() => {
                     onOpenChange()

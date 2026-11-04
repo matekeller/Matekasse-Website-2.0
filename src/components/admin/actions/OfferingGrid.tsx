@@ -1,9 +1,9 @@
 'use client'
-import Image from 'next/image'
-import { Check, ChevronDown, CupSoda, Minus, Plus } from 'lucide-react'
+import { Check, ChevronDown, Minus, Plus } from 'lucide-react'
 import { formatCents } from './shared'
 import { DBOffering } from '@/app/db/db'
 import { cn } from '@/lib/utils'
+import { OfferingImage } from '@/components/OfferingImage'
 import { Button } from '@/components/ui/button'
 import {
   Collapsible,
@@ -116,13 +116,12 @@ const OfferingTile = (props: OfferingTileProps) => {
         disabled={disabled === true || (!selected && !canAdd)}
         className="flex flex-1 flex-col items-center gap-1 p-2 text-center transition-colors hover:bg-accent/50 focus-visible:bg-accent/50 focus-visible:outline-none disabled:opacity-50"
       >
-        {offering.imageUrl ?
-          <Image
-            className="size-16 object-contain"
-            src={{ src: offering.imageUrl, height: 64, width: 64 }}
-            alt=""
-          />
-        : <CupSoda className="size-16 p-3 text-muted-foreground" />}
+        <OfferingImage
+          className="size-16 object-contain"
+          src={offering.imageUrl}
+          size={64}
+          alt=""
+        />
         <span className="line-clamp-2 text-sm leading-tight font-medium">
           {offering.readableName}
         </span>

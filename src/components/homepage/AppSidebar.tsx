@@ -5,7 +5,7 @@ import {
   ChevronUp,
   CupSoda,
   Euro,
-  ReceiptEuro,
+  ReceiptText,
   Unplug,
   Users,
 } from 'lucide-react'
@@ -145,7 +145,7 @@ const StandardUserSideBarContent = ({ onClick }: SideBarContentProps) => {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton render={<Link href="/" />}>
-                <ReceiptEuro />
+                <ReceiptText />
                 <span>Transactions</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -193,7 +193,7 @@ const AdminUserSideBarContent = ({ onClick }: SideBarContentProps) => {
                   <SidebarMenuButton
                     render={<Link href="/admin/transactions" />}
                   >
-                    <ReceiptEuro />
+                    <ReceiptText />
                     <span>All Transactions</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -228,7 +228,7 @@ const AdminUserSideBarContent = ({ onClick }: SideBarContentProps) => {
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton render={<Link href="/" />}>
-                    <ReceiptEuro />
+                    <ReceiptText />
                     <span>Transactions</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

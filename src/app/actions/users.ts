@@ -1,10 +1,17 @@
-import { FormState, UpdateBluecardIDFormSchema } from '../lib/definitions'
-import { updateBluecardID as updateMatekasseBluecardID } from '../db/db'
+import {
+  ActionState,
+  RegisterFormSchema,
+  UpdateBluecardIDFormSchema,
+} from '../lib/definitions'
+import {
+  registerUser,
+  updateBluecardID as updateMatekasseBluecardID,
+} from '../db/db'
 
 export const updateBluecardID = async (
-  state: FormState,
+  state: ActionState,
   formData: FormData,
-) => {
+): Promise<ActionState> => {
   const validatedFields = UpdateBluecardIDFormSchema.safeParse({
     oldBluecardID: formData.get('oldBluecardID'),
     newBluecardID: formData.get('newBluecardID'),
@@ -29,8 +36,46 @@ export const updateBluecardID = async (
     return {
       message:
         'An error occurred while updating bluecard ID: ' +
-        updateBluecardIDResponse.errors?.join(),
+        (updateBluecardIDResponse.errors?.join(', ') ?? 'unknown error'),
     }
   }
-  return { message: 'success' }
+  return { success: true }
+}
+
+export const register = async (
+  state: ActionState,
+  formData: FormData,
+): Promise<ActionState> => {
+  const validatedFields = RegisterFormSchema.safeParse({
+    fullName: formData.get('fullName'),
+    username: formData.get('username'),
+    bluecardId: formData.get('bluecardId'),
+    password: formData.get('password'),
+    session: formData.get('session'),
+  })
+
+  if (!validatedFields.success) {
+    return { errors: validatedFields.error.flatten().fieldErrors }
+  }
+
+  const { fullName, username, bluecardId, password, session } =
+    validatedFields.data
+
+  const registerResponse = await registerUser(
+    session,
+    username,
+    fullName,
+    bluecardId,
+    password,
+  )
+
+  if (registerResponse.data == null) {
+    return {
+      message:
+        'An error occurred while creating the account: ' +
+        (registerResponse.errors?.join(', ') ?? 'unknown error'),
+    }
+  }
+
+  return { success: true }
 }

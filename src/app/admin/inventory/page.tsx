@@ -22,12 +22,13 @@ import { Button } from '@/components/ui/button'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { assert } from '@/lib/utils'
 import { updateInventory } from '@/app/actions/inventory'
-import { Toaster } from '@/components/ui/sonner'
+import { useDataVersion } from '@/hooks/data'
 
 export default function Page() {
   const { session } = useSession()
   const [inventory, setInventory] = useState<DBOffering[]>([])
   const [update, setUpdate] = useState(0)
+  const dataVersion = useDataVersion()
 
   useEffect(() => {
     if (!session) return
@@ -55,7 +56,7 @@ export default function Page() {
     }
 
     void fetchData()
-  }, [session, update])
+  }, [session, update, dataVersion])
 
   return (
     <>
@@ -192,7 +193,7 @@ const InventoryArea = (props: InventoryAreaProps) => {
           />
 
           <Button
-            className="fixed right-10 bottom-10"
+            className="fixed right-24 bottom-[2.125rem]"
             type="submit"
             disabled={pending}
           >
@@ -200,8 +201,6 @@ const InventoryArea = (props: InventoryAreaProps) => {
           </Button>
         </form>
       )}
-
-      <Toaster />
     </>
   )
 }

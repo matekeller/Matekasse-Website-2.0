@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Transaction } from '@/app/page'
 import { useSession } from '@/hooks/session'
+import { useDataVersion } from '@/hooks/data'
 import {
   fetchOwnUserInfo,
   fetchUsers,
@@ -29,6 +30,7 @@ export default function Page() {
 
   const { session } = useSession()
   const [transactions, setTransactions] = useState<Transaction[]>([])
+  const dataVersion = useDataVersion()
 
   useEffect(() => {
     if (!session) return
@@ -60,7 +62,7 @@ export default function Page() {
     }
 
     void fetchData()
-  }, [session, username])
+  }, [session, username, dataVersion])
 
   return (
     <>

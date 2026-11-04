@@ -11,7 +11,6 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Separator } from '../ui/separator'
 import { Button } from '../ui/button'
@@ -22,7 +21,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '../ui/collapsible'
-import { fetchOwnUserInfo } from '@/app/db/db'
+import { useOwnUserInfo } from '@/hooks/data'
 import { useSession } from '@/hooks/session'
 import {
   Sidebar,
@@ -38,33 +37,12 @@ import {
 } from '@/components/ui/sidebar'
 import { logout } from '@/app/actions/auth'
 
-interface UserInfo {
-  username: string
-  fullName: string
-  balance: number
-  isAdmin: boolean
-}
-
 export const AppSidebar = () => {
   const { session } = useSession()
 
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
+  const userInfo = useOwnUserInfo()
   const nameAbbr = getNameAbbreviation(userInfo?.fullName)
   const router = useRouter()
-
-  useEffect(() => {
-    if (!session) return
-
-    const fetchData = async () => {
-      const userInfoData = await fetchOwnUserInfo(session)
-
-      if (userInfoData.data == null) return
-
-      setUserInfo(userInfoData.data)
-    }
-
-    void fetchData()
-  }, [session])
 
   return (
     <Sidebar>

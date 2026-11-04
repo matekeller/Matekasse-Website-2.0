@@ -14,6 +14,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
 import { useSession } from '@/hooks/session'
+import { useDataVersion } from '@/hooks/data'
 import { UsersArea } from '@/components/admin/users/UsersArea'
 import { Input } from '@/components/ui/input'
 
@@ -30,6 +31,7 @@ export default function Home() {
   const { session } = useSession()
   const [users, setUsers] = useState<User[]>([])
   const [filter, setFilter] = useState<string>('')
+  const dataVersion = useDataVersion()
 
   useEffect(() => {
     if (!session) return
@@ -51,7 +53,7 @@ export default function Home() {
     }
 
     void fetchData()
-  }, [session])
+  }, [session, dataVersion])
 
   return (
     <>

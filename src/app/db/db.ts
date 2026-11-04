@@ -13,6 +13,15 @@ export interface DBOffering {
   color: string
 }
 
+export interface DBUser {
+  username: string
+  fullName: string
+  bluecardId: string
+  isAdmin: boolean
+  smartcards: { smartcardId: string }[]
+  balance: number
+}
+
 export interface DBTransactionsPage {
   edges: {
     node: DBTransaction
@@ -517,14 +526,7 @@ export const fetchOwnUserInfo = async (
 
 interface UsersResponse {
   data: {
-    users: {
-      username: string
-      fullName: string
-      bluecardId: string
-      isAdmin: boolean
-      smartcards: { smartcardId: string }[]
-      balance: number
-    }[]
+    users: DBUser[]
   } | null
   errors?: { message: string }[]
 }
@@ -532,16 +534,7 @@ interface UsersResponse {
 export const fetchUsers = async (
   jwt: string,
 ): Promise<{
-  data:
-    | {
-        username: string
-        fullName: string
-        bluecardId: string
-        isAdmin: boolean
-        smartcards: { smartcardId: string }[]
-        balance: number
-      }[]
-    | null
+  data: DBUser[] | null
   errors?: string[]
 }> => {
   try {
@@ -791,6 +784,241 @@ export const updateOffering = async (
   } catch (e) {
     console.error(e)
     return { data: null, errors: ['Error while updating offering'] }
+  }
+}
+
+interface PurchaseResponse {
+  data: {
+    purchase: { id: number }
+  } | null
+  errors?: { message: string }[]
+}
+
+export const purchase = async (
+  jwt: string,
+  payer: string,
+  product: string,
+): Promise<{
+  data: { id: number } | null
+  errors?: string[]
+}> => {
+  try {
+    const response = await fetchBackend(
+      { Accept: 'application/json', Authorization: jwt },
+      JSON.stringify(
+        gql.mutation({
+          operation: 'purchase',
+          variables: {
+            payer: { value: payer, required: true },
+            product: { value: product, required: true },
+          },
+          fields: ['id'],
+        }),
+      ),
+    )
+
+    if (response.ok && response.status === 200) {
+      const rsp = (await response.json()) as PurchaseResponse
+
+      if (rsp.errors !== undefined) {
+        return {
+          data: null,
+          errors: rsp.errors.map((error: { message: string }) => error.message),
+        }
+      }
+
+      assert(rsp.data != null)
+
+      return { data: rsp.data.purchase }
+    } else {
+      const rsp = (await response.json()) as PurchaseResponse
+
+      return {
+        data: null,
+        errors: rsp.errors?.map((error: { message: string }) => error.message),
+      }
+    }
+  } catch (e) {
+    console.error(e)
+    return { data: null, errors: ['Error while booking purchase'] }
+  }
+}
+
+interface TopupResponse {
+  data: {
+    topup: { id: number }
+  } | null
+  errors?: { message: string }[]
+}
+
+// Negative amountCents credit the balance, positive ones debit it.
+export const topup = async (
+  jwt: string,
+  payer: string,
+  amountCents: number,
+): Promise<{
+  data: { id: number } | null
+  errors?: string[]
+}> => {
+  try {
+    const response = await fetchBackend(
+      { Accept: 'application/json', Authorization: jwt },
+      JSON.stringify(
+        gql.mutation({
+          operation: 'topup',
+          variables: {
+            payer: { value: payer, required: true },
+            amountCents: { value: amountCents, required: true, type: 'Int' },
+          },
+          fields: ['id'],
+        }),
+      ),
+    )
+
+    if (response.ok && response.status === 200) {
+      const rsp = (await response.json()) as TopupResponse
+
+      if (rsp.errors !== undefined) {
+        return {
+          data: null,
+          errors: rsp.errors.map((error: { message: string }) => error.message),
+        }
+      }
+
+      assert(rsp.data != null)
+
+      return { data: rsp.data.topup }
+    } else {
+      const rsp = (await response.json()) as TopupResponse
+
+      return {
+        data: null,
+        errors: rsp.errors?.map((error: { message: string }) => error.message),
+      }
+    }
+  } catch (e) {
+    console.error(e)
+    return { data: null, errors: ['Error while booking top-up'] }
+  }
+}
+
+interface UndoPurchaseResponse {
+  data: {
+    undoPurchase: string
+  } | null
+  errors?: { message: string }[]
+}
+
+export const undoPurchase = async (
+  jwt: string,
+  transactionId: number,
+): Promise<{
+  data: { undoPurchase: string } | null
+  errors?: string[]
+}> => {
+  try {
+    const response = await fetchBackend(
+      { Accept: 'application/json', Authorization: jwt },
+      JSON.stringify(
+        gql.mutation({
+          operation: 'undoPurchase',
+          variables: {
+            transactionId: {
+              value: transactionId,
+              required: true,
+              type: 'Int',
+            },
+          },
+          fields: [],
+        }),
+      ),
+    )
+
+    if (response.ok && response.status === 200) {
+      const rsp = (await response.json()) as UndoPurchaseResponse
+
+      if (rsp.errors !== undefined) {
+        return {
+          data: null,
+          errors: rsp.errors.map((error: { message: string }) => error.message),
+        }
+      }
+
+      assert(rsp.data != null)
+
+      return { data: rsp.data }
+    } else {
+      const rsp = (await response.json()) as UndoPurchaseResponse
+
+      return {
+        data: null,
+        errors: rsp.errors?.map((error: { message: string }) => error.message),
+      }
+    }
+  } catch (e) {
+    console.error(e)
+    return { data: null, errors: ['Error while undoing transaction'] }
+  }
+}
+
+interface RegisterResponse {
+  data: {
+    register: string
+  } | null
+  errors?: { message: string }[]
+}
+
+export const registerUser = async (
+  jwt: string,
+  username: string,
+  fullName: string,
+  bluecardId: string,
+  password: string,
+): Promise<{
+  data: { register: string } | null
+  errors?: string[]
+}> => {
+  try {
+    const response = await fetchBackend(
+      { Accept: 'application/json', Authorization: jwt },
+      JSON.stringify(
+        gql.mutation({
+          operation: 'register',
+          variables: {
+            username: { value: username, required: true },
+            fullName: { value: fullName, required: true },
+            bluecardId: { value: bluecardId, required: true },
+            password: { value: password, required: true },
+          },
+          fields: [],
+        }),
+      ),
+    )
+
+    if (response.ok && response.status === 200) {
+      const rsp = (await response.json()) as RegisterResponse
+
+      if (rsp.errors !== undefined) {
+        return {
+          data: null,
+          errors: rsp.errors.map((error: { message: string }) => error.message),
+        }
+      }
+
+      assert(rsp.data != null)
+
+      return { data: rsp.data }
+    } else {
+      const rsp = (await response.json()) as RegisterResponse
+
+      return {
+        data: null,
+        errors: rsp.errors?.map((error: { message: string }) => error.message),
+      }
+    }
+  } catch (e) {
+    console.error(e)
+    return { data: null, errors: ['Error while registering user'] }
   }
 }
 

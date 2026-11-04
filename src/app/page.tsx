@@ -15,6 +15,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { useSession } from '@/hooks/session'
+import { useDataVersion } from '@/hooks/data'
 import { getTransactions } from '@/lib/utils'
 
 export interface Transaction {
@@ -33,6 +34,7 @@ export default function Home() {
   const { session } = useSession()
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [cursor, setCursor] = useState<number | null>(null)
+  const dataVersion = useDataVersion()
 
   const { ref, inView } = useInView()
 
@@ -46,7 +48,7 @@ export default function Home() {
 
       const serializedTransactions = await getTransactions(
         [transactionData.data],
-        cursor,
+        null,
       )
 
       setTransactions(serializedTransactions)
@@ -54,7 +56,7 @@ export default function Home() {
     }
 
     void fetchData()
-  }, [session])
+  }, [session, dataVersion])
 
   useEffect(() => {
     if (!session || !inView || !cursor) return

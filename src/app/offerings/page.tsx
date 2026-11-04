@@ -13,12 +13,14 @@ import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
 import { OfferingsArea } from '@/components/offerings/OfferingsArea'
 import { useSession } from '@/hooks/session'
+import { useDataVersion } from '@/hooks/data'
 
 export default function Home() {
   const [offerings, setOfferings] = useState<DBOffering[]>([])
   const { session } = useSession()
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
   const [needsUpdate, setNeedsUpdate] = useState(false)
+  const dataVersion = useDataVersion()
 
   useEffect(() => {
     if (!session) return
@@ -48,7 +50,7 @@ export default function Home() {
     }
 
     void fetchData()
-  }, [needsUpdate])
+  }, [needsUpdate, dataVersion])
 
   return (
     <>

@@ -1,5 +1,15 @@
 import { z } from 'zod'
-import { zu } from 'zod_utilz'
+
+// Parses a form field that carries JSON.
+const jsonString = () =>
+  z.string().transform((value, ctx): unknown => {
+    try {
+      return JSON.parse(value)
+    } catch {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Invalid JSON' })
+      return z.NEVER
+    }
+  })
 
 export const LoginFormSchema = z.object({
   username: z.string().trim(),
@@ -19,7 +29,7 @@ export const UpdateBluecardIDFormSchema = z.object({
 })
 
 export const UpdateInventoryFormSchema = z.object({
-  movements: zu.stringToJSON(),
+  movements: jsonString(),
   session: z.string().trim(),
 })
 
@@ -67,7 +77,7 @@ export const MAX_PURCHASE_ITEMS = 50
 
 export const PurchaseFormSchema = z.object({
   payer: z.string().trim().min(1, 'Select a user'),
-  items: zu.stringToJSON().pipe(
+  items: jsonString().pipe(
     z
       .array(
         z.object({

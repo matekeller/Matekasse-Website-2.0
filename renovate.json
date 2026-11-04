@@ -5,13 +5,22 @@
     "group:all",
     "helpers:pinGitHubActionDigests"
   ],
-  "dependencyDashboard": false,
   "minimumReleaseAge": "3 days",
   "packageRules": [
     {
       "description": "@cloudflare/next-on-pages only supports next <= 15.5.2, so stay on the patched 15.4 line.",
       "matchPackageNames": ["next"],
       "allowedVersions": "~15.4.0"
+    },
+    {
+      "description": "typescript-eslint supports TypeScript < 6.1 only, and TypeScript 7 has no JavaScript API for the Next.js 15 type check.",
+      "matchPackageNames": ["typescript"],
+      "allowedVersions": "<6.1.0"
+    },
+    {
+      "description": "eslint-plugin-react and eslint-plugin-import do not support ESLint 10 yet.",
+      "matchPackageNames": ["eslint"],
+      "allowedVersions": "<10.0.0"
     }
   ]
 }

@@ -20,7 +20,6 @@ const eslintConfig = [
       ecmaVersion: 'latest',
       sourceType: 'module',
       parserOptions: {
-        project: true,
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
         ecmaFeatures: { jsx: true }

@@ -77,6 +77,7 @@ export default function Home() {
 
           <Input
             placeholder="Search users…"
+            enterKeyHint="search"
             className="w-max"
             onChange={(event) => setFilter(event.target.value.toLowerCase())}
           />

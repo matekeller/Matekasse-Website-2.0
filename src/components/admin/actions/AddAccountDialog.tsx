@@ -140,7 +140,6 @@ const AddAccountForm = (props: ActionDialogProps) => {
             id="register-password"
             name="password"
             type={showPassword ? 'text' : 'password'}
-            autoComplete="new-password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             disabled={pending}

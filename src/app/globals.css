@@ -199,4 +199,13 @@
   select:not(:disabled) {
     cursor: pointer;
   }
+
+  /* Text fields render as type="search" to avoid password managers. */
+  input[type='search'] {
+    appearance: none;
+  }
+
+  input[type='search']::-webkit-search-cancel-button {
+    appearance: none;
+  }
 }

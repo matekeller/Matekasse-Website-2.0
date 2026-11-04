@@ -86,6 +86,7 @@ export const UserPicker = (props: UserPickerProps) => {
         }
         placeholder="Username, name or bluecard ID…"
         autoComplete="off"
+        enterKeyHint="search"
         autoCapitalize="none"
         autoCorrect="off"
         spellCheck={false}

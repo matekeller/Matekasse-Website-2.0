@@ -50,8 +50,10 @@ export const LoginForm = ({
                       <div className="grid gap-2">
                         <Label htmlFor="username">User name</Label>
                         <Input
+                          allowPasswordManager
                           id="username"
                           name="username"
+                          autoComplete="username"
                           placeholder="Your user name…"
                           required
                           disabled={pending}
@@ -60,7 +62,9 @@ export const LoginForm = ({
                       <div className="grid gap-2">
                         <Label htmlFor="password">Password</Label>
                         <Input
+                          allowPasswordManager
                           id="password"
+                          autoComplete="current-password"
                           placeholder="Your password…"
                           type="password"
                           name="password"

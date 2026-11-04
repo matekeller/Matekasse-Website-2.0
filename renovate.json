@@ -1,0 +1,17 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "group:all",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "dependencyDashboard": false,
+  "minimumReleaseAge": "3 days",
+  "packageRules": [
+    {
+      "description": "@cloudflare/next-on-pages only supports next <= 15.5.2, so stay on the patched 15.4 line.",
+      "matchPackageNames": ["next"],
+      "allowedVersions": "~15.4.0"
+    }
+  ]
+}

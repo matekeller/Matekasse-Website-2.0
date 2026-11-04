@@ -28,6 +28,9 @@ export const BluecardInput = (props: BluecardInputProps) => {
           id={id}
           name={name}
           autoComplete="off"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
           placeholder="Type or scan…"
           value={value}
           onChange={(event) => onChange(event.target.value)}

@@ -42,7 +42,7 @@ interface UserCardProps {
 const UserCard = (props: UserCardProps) => {
   const { user } = props
   const openAdminAction = useAdminActions()
-  const { markDialogOpened, onCloseAutoFocus } = useDialogMenuFocus()
+  const { markDialogOpened, finalFocus } = useDialogMenuFocus()
 
   const openForUser = (action: AdminAction) => {
     markDialogOpened()
@@ -53,40 +53,43 @@ const UserCard = (props: UserCardProps) => {
     <Card className="relative grid flex-row">
       <div className="absolute right-2 top-2 z-10">
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              size="icon"
-              variant="ghost"
-              className={`flex size-8 text-muted-foreground data-[state=open]:bg-muted`}
-            >
-              <EllipsisVertical />
-            </Button>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                size="icon"
+                variant="ghost"
+                className="size-8 text-muted-foreground pointer-coarse:size-10"
+                aria-label={`Actions for @${user.username}`}
+              />
+            }
+          >
+            <EllipsisVertical />
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
             className="w-50"
-            onCloseAutoFocus={onCloseAutoFocus}
+            finalFocus={finalFocus}
           >
-            <DropdownMenuItem onSelect={() => openForUser('topup')}>
+            <DropdownMenuItem onClick={() => openForUser('topup')}>
               Top up
             </DropdownMenuItem>
 
-            <DropdownMenuItem onSelect={() => openForUser('purchase')}>
+            <DropdownMenuItem onClick={() => openForUser('purchase')}>
               Offering purchase
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem onSelect={() => openForUser('changeBluecard')}>
+            <DropdownMenuItem onClick={() => openForUser('changeBluecard')}>
               Change bluecard
             </DropdownMenuItem>
 
             <DropdownMenuItem>Update password</DropdownMenuItem>
 
-            <DropdownMenuItem>
-              <Link href={`/admin/transactions/${user.username}`}>
-                Transaction history
-              </Link>
+            <DropdownMenuItem
+              render={<Link href={`/admin/transactions/${user.username}`} />}
+            >
+              Transaction history
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

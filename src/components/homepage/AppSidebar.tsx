@@ -11,7 +11,6 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { Separator } from '../ui/separator'
 import { Button } from '../ui/button'
 import { Avatar, AvatarFallback } from '../ui/avatar'
@@ -34,6 +33,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from '@/components/ui/sidebar'
 import { logout } from '@/app/actions/auth'
 
@@ -42,18 +42,25 @@ export const AppSidebar = () => {
 
   const userInfo = useOwnUserInfo()
   const nameAbbr = getNameAbbreviation(userInfo?.fullName)
-  const router = useRouter()
+  const { setOpenMobile } = useSidebar()
+
+  // The mobile sidebar is an overlay, so close it once a link was used.
+  const closeOnLinkClick = (event: React.MouseEvent) => {
+    if (event.target instanceof Element && event.target.closest('a')) {
+      setOpenMobile(false)
+    }
+  }
 
   return (
     <Sidebar>
-      <SidebarHeader className="justify-center">
-        <Image
-          src={{ src: '/matemate.png', height: 150, width: 150 }}
-          alt="MateMate Logo"
-          className="self-center cursor-pointer"
-          priority={true}
-          onClick={() => router.push('/')}
-        />
+      <SidebarHeader className="justify-center" onClick={closeOnLinkClick}>
+        <Link href="/" className="self-center">
+          <Image
+            src={{ src: '/matemate.png', height: 150, width: 150 }}
+            alt="MateMate Logo"
+            priority={true}
+          />
+        </Link>
         <span
           style={{
             fontVariantCaps: 'small-caps',
@@ -66,8 +73,8 @@ export const AppSidebar = () => {
       <Separator />
 
       {userInfo?.isAdmin ?
-        <AdminUserSideBarContent />
-      : <StandardUserSideBarContent />}
+        <AdminUserSideBarContent onClick={closeOnLinkClick} />
+      : <StandardUserSideBarContent onClick={closeOnLinkClick} />}
 
       <SidebarFooter>
         <Separator />
@@ -126,43 +133,41 @@ const getNameAbbreviation = (
   return undefined
 }
 
-const StandardUserSideBarContent = () => {
+interface SideBarContentProps {
+  onClick: (event: React.MouseEvent) => void
+}
+
+const StandardUserSideBarContent = ({ onClick }: SideBarContentProps) => {
   return (
-    <SidebarContent>
+    <SidebarContent onClick={onClick}>
       <SidebarGroup>
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <Link href="/">
-                  <ReceiptEuro />
-                  <span>Transactions</span>
-                </Link>
+              <SidebarMenuButton render={<Link href="/" />}>
+                <ReceiptEuro />
+                <span>Transactions</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
             {/* <SidebarMenuItem>
-          <SidebarMenuButton asChild>
-            <Link href="stats">
+          <SidebarMenuButton render={<Link href="/stats" />}>
               <LucideChartNoAxesCombined />
-              <span>Statistics</span>
-            </Link>
+            <span>Statistics</span>
           </SidebarMenuButton>
         </SidebarMenuItem> */}
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <Link href="offerings">
-                  <CupSoda />
-                  <span>Offerings</span>
-                </Link>
+              <SidebarMenuButton render={<Link href="/offerings" />}>
+                <CupSoda />
+                <span>Offerings</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <Separator />
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <Link href="https://api.matekasse.de/graphiql">
-                  <Unplug />
-                  <span>API</span>
-                </Link>
+              <SidebarMenuButton
+                render={<Link href="https://api.matekasse.de/graphiql" />}
+              >
+                <Unplug />
+                <span>API</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
@@ -172,44 +177,38 @@ const StandardUserSideBarContent = () => {
   )
 }
 
-const AdminUserSideBarContent = () => {
+const AdminUserSideBarContent = ({ onClick }: SideBarContentProps) => {
   return (
-    <SidebarContent>
+    <SidebarContent onClick={onClick}>
       <Collapsible defaultOpen className="group/collapsible">
         <SidebarGroup>
-          <SidebarGroupLabel asChild>
-            <CollapsibleTrigger>
-              Admin
-              <ChevronUp className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
-            </CollapsibleTrigger>
+          <SidebarGroupLabel render={<CollapsibleTrigger />}>
+            Admin
+            <ChevronUp className="ml-auto transition-transform group-data-open/collapsible:rotate-180" />
           </SidebarGroupLabel>
           <CollapsibleContent>
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link href="/admin/transactions">
-                      <ReceiptEuro />
-                      <span>All Transactions</span>
-                    </Link>
+                  <SidebarMenuButton
+                    render={<Link href="/admin/transactions" />}
+                  >
+                    <ReceiptEuro />
+                    <span>All Transactions</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link href="/admin/users">
-                      <Users />
-                      <span>Users</span>
-                    </Link>
+                  <SidebarMenuButton render={<Link href="/admin/users" />}>
+                    <Users />
+                    <span>Users</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link href="/admin/inventory">
-                      <Boxes />
-                      <span>Inventory</span>
-                    </Link>
+                  <SidebarMenuButton render={<Link href="/admin/inventory" />}>
+                    <Boxes />
+                    <span>Inventory</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
@@ -220,37 +219,29 @@ const AdminUserSideBarContent = () => {
 
       <Collapsible defaultOpen className="group/collapsible">
         <SidebarGroup>
-          <SidebarGroupLabel asChild>
-            <CollapsibleTrigger>
-              Pleb
-              <ChevronUp className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
-            </CollapsibleTrigger>
+          <SidebarGroupLabel render={<CollapsibleTrigger />}>
+            Pleb
+            <ChevronUp className="ml-auto transition-transform group-data-open/collapsible:rotate-180" />
           </SidebarGroupLabel>
           <CollapsibleContent>
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link href="/">
-                      <ReceiptEuro />
-                      <span>Transactions</span>
-                    </Link>
+                  <SidebarMenuButton render={<Link href="/" />}>
+                    <ReceiptEuro />
+                    <span>Transactions</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 {/* <SidebarMenuItem>
-          <SidebarMenuButton asChild>
-            <Link href="stats">
+          <SidebarMenuButton render={<Link href="/stats" />}>
               <LucideChartNoAxesCombined />
-              <span>Statistics</span>
-            </Link>
+            <span>Statistics</span>
           </SidebarMenuButton>
         </SidebarMenuItem> */}
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link href="offerings">
-                      <CupSoda />
-                      <span>Offerings</span>
-                    </Link>
+                  <SidebarMenuButton render={<Link href="/offerings" />}>
+                    <CupSoda />
+                    <span>Offerings</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
@@ -264,11 +255,11 @@ const AdminUserSideBarContent = () => {
           <SidebarMenu>
             <Separator />
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <Link href="https://api.matekasse.de/graphiql">
-                  <Unplug />
-                  <span>API</span>
-                </Link>
+              <SidebarMenuButton
+                render={<Link href="https://api.matekasse.de/graphiql" />}
+              >
+                <Unplug />
+                <span>API</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

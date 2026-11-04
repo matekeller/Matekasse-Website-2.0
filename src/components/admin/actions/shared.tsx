@@ -3,6 +3,10 @@ import { undoTransactions } from '@/app/actions/transactions'
 import { ActionState } from '@/app/lib/definitions'
 import { notifyDataChanged } from '@/hooks/data'
 
+// On phones, anchor dialogs to the top so the keyboard does not cover them.
+export const ACTION_DIALOG_CLASS =
+  'max-sm:top-4 max-sm:max-h-[calc(100dvh-2rem)] max-sm:translate-y-0 max-sm:overflow-y-auto'
+
 export interface ActionDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void

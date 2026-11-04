@@ -2,7 +2,7 @@
 import { useActionState, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { BluecardInput } from './BluecardInput'
-import { ActionDialogProps, FormErrors } from './shared'
+import { ACTION_DIALOG_CLASS, ActionDialogProps, FormErrors } from './shared'
 import { UserPicker } from './UserPicker'
 import { updateBluecardID } from '@/app/actions/users'
 import { ActionState } from '@/app/lib/definitions'
@@ -23,7 +23,7 @@ export const ChangeBluecardDialog = (props: ActionDialogProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className={ACTION_DIALOG_CLASS}>
         <ChangeBluecardForm {...props} />
       </DialogContent>
     </Dialog>

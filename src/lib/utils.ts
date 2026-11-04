@@ -1,5 +1,3 @@
-import { clsx, type ClassValue } from 'clsx'
-import { twMerge } from 'tailwind-merge'
 import {
   getOfferingDataFromPages,
   getOfferingDataFromTransactions,
@@ -7,9 +5,8 @@ import {
 import { Transaction } from '@/app/page'
 import { DBTransaction, DBTransactionsPage } from '@/app/db/db'
 
-export const cn = (...inputs: ClassValue[]) => {
-  return twMerge(clsx(inputs))
-}
+export { cn } from 'cn'
+
 type Assert = (condition: unknown, message?: string) => asserts condition
 export const assert: Assert = (
   condition: unknown,

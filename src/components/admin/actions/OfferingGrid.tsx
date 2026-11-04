@@ -68,10 +68,10 @@ export const OfferingGrid = (props: OfferingGridProps) => {
 
         {discontinued.length !== 0 && (
           <Collapsible>
-            <CollapsibleTrigger className="group flex w-full items-center gap-3 rounded-sm text-sm text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
+            <CollapsibleTrigger className="group flex w-full items-center gap-3 rounded-sm text-sm text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none pointer-coarse:py-2">
               <span className="h-px flex-1 bg-border" />
               Discontinued offerings ({discontinued.length})
-              <ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" />
+              <ChevronDown className="size-4 transition-transform group-data-panel-open:rotate-180" />
               <span className="h-px flex-1 bg-border" />
             </CollapsibleTrigger>
             <CollapsibleContent className="pt-3">
@@ -114,7 +114,7 @@ const OfferingTile = (props: OfferingTileProps) => {
         aria-pressed={selected}
         onClick={() => onSetQuantity(selected ? 0 : 1)}
         disabled={disabled === true || (!selected && !canAdd)}
-        className="flex flex-1 flex-col items-center gap-1 p-2 text-center transition-colors hover:bg-accent/50 focus-visible:bg-accent/50 focus-visible:outline-none disabled:opacity-50"
+        className="flex flex-1 touch-manipulation flex-col items-center gap-1 p-2 text-center transition-colors hover:bg-accent/50 focus-visible:bg-accent/50 focus-visible:outline-none disabled:opacity-50"
       >
         <OfferingImage
           className="size-16 object-contain"
@@ -146,7 +146,7 @@ const OfferingTile = (props: OfferingTileProps) => {
               type="button"
               variant="ghost"
               size="icon"
-              className="size-7"
+              className="size-8 touch-manipulation pointer-coarse:size-10"
               onClick={() => onSetQuantity(quantity - 1)}
               disabled={disabled}
               aria-label={`One ${offering.readableName} less`}
@@ -160,7 +160,7 @@ const OfferingTile = (props: OfferingTileProps) => {
               type="button"
               variant="ghost"
               size="icon"
-              className="size-7"
+              className="size-8 touch-manipulation pointer-coarse:size-10"
               onClick={() => onSetQuantity(quantity + 1)}
               disabled={disabled === true || !canAdd}
               aria-label={`One ${offering.readableName} more`}

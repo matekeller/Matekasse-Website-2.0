@@ -193,7 +193,7 @@ const InventoryArea = (props: InventoryAreaProps) => {
           />
 
           <Button
-            className="fixed right-24 bottom-[2.125rem]"
+            className="fixed right-24 bottom-[calc(2.125rem+env(safe-area-inset-bottom))]"
             type="submit"
             disabled={pending}
           >

@@ -32,11 +32,10 @@ export const useDialogMenuFocus = () => {
     markDialogOpened: () => {
       openedDialog.current = true
     },
-    onCloseAutoFocus: (event: Event) => {
-      if (openedDialog.current) {
-        event.preventDefault()
-        openedDialog.current = false
-      }
+    finalFocus: () => {
+      const restoreFocus = !openedDialog.current
+      openedDialog.current = false
+      return restoreFocus
     },
   }
 }
@@ -81,6 +80,8 @@ export const AdminActionsProvider = ({
 
       {ownUserInfo?.isAdmin === true && (
         <>
+          {/* Keeps the floating button from covering the end of the page. */}
+          <div aria-hidden className="h-20 shrink-0" />
           <AdminActionsFab
             onSelect={(action) => openAdminAction(action, params.username)}
           />
@@ -99,39 +100,48 @@ const AdminActionsFab = ({
 }: {
   onSelect: (action: AdminAction) => void
 }) => {
-  const { markDialogOpened, onCloseAutoFocus } = useDialogMenuFocus()
+  const { markDialogOpened, finalFocus } = useDialogMenuFocus()
+  const [open, setOpen] = useState(false)
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          size="icon"
-          className="group fixed right-6 bottom-6 z-40 size-14 rounded-full shadow-lg"
-          aria-label="Admin actions"
-        >
-          <Plus className="size-6 transition-transform duration-200 group-data-[state=open]:rotate-45" />
-        </Button>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      {open && (
+        <div
+          aria-hidden
+          className="pointer-events-none fixed inset-0 z-30 bg-background/70 backdrop-blur-[2px] animate-in fade-in-0"
+        />
+      )}
+      <DropdownMenuTrigger
+        render={
+          <Button
+            size="icon"
+            className="group fixed right-[calc(1.5rem+env(safe-area-inset-right))] bottom-[calc(1.5rem+env(safe-area-inset-bottom))] z-40 size-14 touch-manipulation rounded-full shadow-lg pointer-coarse:size-14"
+            aria-label="Admin actions"
+          />
+        }
+      >
+        <Plus className="size-6 transition-transform duration-200 group-data-popup-open:rotate-45" />
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        onCloseAutoFocus={onCloseAutoFocus}
+        finalFocus={finalFocus}
         side="top"
         align="end"
         sideOffset={12}
-        className="flex min-w-0 flex-col items-end gap-3 overflow-visible border-none bg-transparent p-0 pr-2 shadow-none"
+        className="flex w-auto min-w-0 flex-col items-end gap-3 overflow-visible bg-transparent p-0 pr-1.5 shadow-none ring-0 pointer-coarse:gap-2 pointer-coarse:pr-1"
       >
         {FAB_ACTIONS.map(({ action, label, icon: Icon }) => (
           <DropdownMenuItem
             key={action}
-            onSelect={() => {
+            onClick={() => {
               markDialogOpened()
               onSelect(action)
             }}
-            className="group/item cursor-pointer gap-3 rounded-full p-0 focus:bg-transparent"
+            className="group/item touch-manipulation gap-3 rounded-full p-0 focus:bg-transparent pointer-coarse:py-0"
           >
-            <span className="rounded-md border bg-popover px-3 py-1.5 text-sm font-medium text-popover-foreground shadow-md transition-colors group-focus/item:bg-accent group-focus/item:text-accent-foreground">
+            <span className="rounded-md border bg-popover px-3 py-1.5 text-sm font-medium text-popover-foreground shadow-md transition-colors group-focus/item:bg-accent group-focus/item:text-accent-foreground group-data-highlighted/item:bg-accent pointer-coarse:py-2.5">
               {label}
             </span>
-            <span className="flex size-10 items-center justify-center rounded-full border bg-secondary shadow-md transition-colors group-focus/item:bg-accent">
+            <span className="flex size-11 items-center justify-center rounded-full border bg-secondary shadow-md transition-colors group-focus/item:bg-accent group-data-highlighted/item:bg-accent pointer-coarse:size-12">
               <Icon className="size-5 text-secondary-foreground" />
             </span>
           </DropdownMenuItem>

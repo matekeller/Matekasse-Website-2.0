@@ -3,7 +3,7 @@ import { Eye, EyeOff } from 'lucide-react'
 import { useActionState, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { BluecardInput } from './BluecardInput'
-import { ActionDialogProps, FormErrors } from './shared'
+import { ACTION_DIALOG_CLASS, ActionDialogProps, FormErrors } from './shared'
 import { register } from '@/app/actions/users'
 import { ActionState } from '@/app/lib/definitions'
 import { notifyDataChanged, useUsers } from '@/hooks/data'
@@ -25,7 +25,7 @@ export const AddAccountDialog = (props: ActionDialogProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className={ACTION_DIALOG_CLASS}>
         <AddAccountForm {...props} />
       </DialogContent>
     </Dialog>
@@ -84,7 +84,7 @@ const AddAccountForm = (props: ActionDialogProps) => {
           id="register-full-name"
           name="fullName"
           autoComplete="off"
-          autoFocus
+          autoCapitalize="words"
           value={fullName}
           onChange={(event) => setFullName(event.target.value)}
           disabled={pending}
@@ -97,6 +97,9 @@ const AddAccountForm = (props: ActionDialogProps) => {
           id="register-username"
           name="username"
           autoComplete="off"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
           value={username}
           onChange={(event) => setUsername(event.target.value)}
           aria-invalid={usernameTaken === true || usernameHasSpaces}

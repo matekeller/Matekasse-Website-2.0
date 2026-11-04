@@ -285,7 +285,7 @@ const UpdateOfferingDialog = (props: UpdateOfferingDialogProps) => {
                   <Checkbox
                     id="newDiscontinued"
                     checked={newDiscontinued}
-                    onClick={() => setNewDiscontinued(!newDiscontinued)}
+                    onCheckedChange={setNewDiscontinued}
                     disabled={pending}
                   />
 
@@ -293,7 +293,7 @@ const UpdateOfferingDialog = (props: UpdateOfferingDialogProps) => {
                   <Checkbox
                     id="newDiscount"
                     checked={newDiscount}
-                    onClick={() => setNewDiscount(!newDiscount)}
+                    onCheckedChange={setNewDiscount}
                     disabled={pending}
                   />
 
@@ -301,7 +301,7 @@ const UpdateOfferingDialog = (props: UpdateOfferingDialogProps) => {
                   <Checkbox
                     id="newIsFood"
                     checked={newIsFood}
-                    onClick={() => setNewIsFood(!newIsFood)}
+                    onCheckedChange={setNewIsFood}
                     disabled={pending}
                   />
                 </div>

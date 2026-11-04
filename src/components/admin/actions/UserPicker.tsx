@@ -60,7 +60,7 @@ export const UserPicker = (props: UserPickerProps) => {
             type="button"
             variant="ghost"
             size="icon"
-            className="size-8"
+            className="size-8 pointer-coarse:size-10"
             onClick={() => onChange(null)}
             disabled={disabled}
             aria-label="Choose another user"
@@ -86,7 +86,9 @@ export const UserPicker = (props: UserPickerProps) => {
         }
         placeholder="Username, name or bluecard ID…"
         autoComplete="off"
-        autoFocus
+        autoCapitalize="none"
+        autoCorrect="off"
+        spellCheck={false}
         value={query}
         disabled={disabled}
         onChange={(event) => {
@@ -117,7 +119,7 @@ export const UserPicker = (props: UserPickerProps) => {
         <ul
           id={`${id}-list`}
           role="listbox"
-          className="absolute top-full z-50 mt-1 w-full overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
+          className="absolute top-full z-50 mt-1 w-full overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md max-sm:static max-sm:mt-0"
         >
           {users === undefined ?
             <li className="px-2 py-1.5 text-sm text-muted-foreground">
@@ -134,7 +136,7 @@ export const UserPicker = (props: UserPickerProps) => {
                 role="option"
                 aria-selected={idx === activeIndex}
                 className={cn(
-                  'flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm',
+                  'flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm pointer-coarse:py-3',
                   idx === activeIndex && 'bg-accent text-accent-foreground',
                 )}
                 onMouseDown={(event) => event.preventDefault()}

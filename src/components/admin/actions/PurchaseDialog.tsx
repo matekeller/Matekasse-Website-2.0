@@ -2,6 +2,7 @@
 import { useActionState, useEffect, useState } from 'react'
 import { OfferingGrid, OfferingQuantities, countItems } from './OfferingGrid'
 import {
+  ACTION_DIALOG_CLASS,
   ActionDialogProps,
   FormErrors,
   displayBalance,
@@ -13,6 +14,7 @@ import { purchase } from '@/app/actions/transactions'
 import { BookingState, MAX_PURCHASE_ITEMS } from '@/app/lib/definitions'
 import { notifyDataChanged, useOfferings, useUsers } from '@/hooks/data'
 import { useSession } from '@/hooks/session'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -29,7 +31,7 @@ export const PurchaseDialog = (props: ActionDialogProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className={cn('sm:max-w-2xl', ACTION_DIALOG_CLASS)}>
         <PurchaseForm {...props} />
       </DialogContent>
     </Dialog>

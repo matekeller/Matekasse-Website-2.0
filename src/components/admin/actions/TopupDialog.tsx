@@ -1,6 +1,7 @@
 'use client'
 import { useActionState, useEffect, useState } from 'react'
 import {
+  ACTION_DIALOG_CLASS,
   ActionDialogProps,
   FormErrors,
   displayBalance,
@@ -31,7 +32,7 @@ export const TopupDialog = (props: ActionDialogProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className={ACTION_DIALOG_CLASS}>
         <TopupForm {...props} />
       </DialogContent>
     </Dialog>
@@ -129,13 +130,14 @@ const TopupForm = (props: ActionDialogProps) => {
           onChange={(event) => setAmount(event.target.value)}
           disabled={pending}
         />
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-4 gap-2">
           {QUICK_AMOUNTS_EUROS.map((quickAmount) => (
             <Button
               key={quickAmount}
               type="button"
               variant="secondary"
               size="sm"
+              className="pointer-coarse:h-10"
               onClick={() => setAmount(String(quickAmount))}
               disabled={pending}
             >

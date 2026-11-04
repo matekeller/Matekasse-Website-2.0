@@ -1,4 +1,5 @@
 'use client'
+export const runtime = 'edge'
 import { Cat } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useInView } from 'react-intersection-observer'

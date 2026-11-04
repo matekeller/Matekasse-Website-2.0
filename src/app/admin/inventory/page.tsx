@@ -1,4 +1,5 @@
 'use client'
+export const runtime = 'edge'
 import { redirect } from 'next/navigation'
 import { Fragment, useActionState, useEffect, useState } from 'react'
 import Image from 'next/image'

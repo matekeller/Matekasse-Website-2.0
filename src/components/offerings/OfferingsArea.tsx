@@ -1,7 +1,7 @@
 'use client'
 import Image from 'next/image'
 import { Pencil } from 'lucide-react'
-import { Fragment, useActionState, useEffect, useState } from 'react'
+import { useActionState, useEffect, useState } from 'react'
 import {
   Card,
   CardDescription,
@@ -90,89 +90,104 @@ const getCards = (
   onUpdateOffering: () => void,
   session?: string,
 ) => {
-  return offerings.map((offering) => {
-    const [updateOfferingDialogOpen, setUpdateOfferingDialogOpen] =
-      useState(false)
+  return offerings.map((offering) => (
+    <OfferingCard
+      key={offering.name}
+      offering={offering}
+      isAdmin={isAdmin}
+      onUpdateOffering={onUpdateOffering}
+      session={session}
+    />
+  ))
+}
 
-    return (
-      <Fragment key={offering.name}>
-        <UpdateOfferingDialog
-          session={session}
-          open={updateOfferingDialogOpen}
-          offering={offering}
-          onOpenChange={() => setUpdateOfferingDialogOpen(false)}
-          onUpdate={onUpdateOffering}
-        />
-        <Card
-          key={offering.name}
-          className="relative grid flex-row"
-          style={{ gridTemplateColumns: 'auto auto' }}
-        >
-          {isAdmin && (
-            <Button
-              variant="ghost"
-              className="flex size-8 text-muted-foreground absolute right-2 top-2 z-10 "
-              size="icon"
-              onClick={() => setUpdateOfferingDialogOpen(true)}
+interface OfferingCardProps {
+  offering: DBOffering
+  isAdmin: boolean
+  onUpdateOffering: () => void
+  session?: string
+}
+
+const OfferingCard = (props: OfferingCardProps) => {
+  const { offering, isAdmin, onUpdateOffering, session } = props
+  const [updateOfferingDialogOpen, setUpdateOfferingDialogOpen] =
+    useState(false)
+
+  return (
+    <>
+      <UpdateOfferingDialog
+        session={session}
+        open={updateOfferingDialogOpen}
+        offering={offering}
+        onOpenChange={() => setUpdateOfferingDialogOpen(false)}
+        onUpdate={onUpdateOffering}
+      />
+      <Card
+        className="relative grid flex-row"
+        style={{ gridTemplateColumns: 'auto auto' }}
+      >
+        {isAdmin && (
+          <Button
+            variant="ghost"
+            className="flex size-8 text-muted-foreground absolute right-2 top-2 z-10 "
+            size="icon"
+            onClick={() => setUpdateOfferingDialogOpen(true)}
+          >
+            <Pencil />
+          </Button>
+        )}
+        <div className="flex flex-col justify-between">
+          <CardHeader>
+            <CardTitle>{offering.readableName}</CardTitle>
+            <CardDescription>
+              Currently in stock:{' '}
+              <span style={{ fontWeight: 'bold' }}>{offering.inInventory}</span>
+            </CardDescription>
+          </CardHeader>
+
+          <CardFooter>
+            <span
+              className={`text-3xl font-extrabold ${
+                offering.discounted && !offering.discontinued ?
+                  'text-red-700'
+                : 'text-foreground'
+              }`}
             >
-              <Pencil />
-            </Button>
-          )}
-          <div className="flex flex-col justify-between">
-            <CardHeader>
-              <CardTitle>{offering.readableName}</CardTitle>
-              <CardDescription>
-                Currently in stock:{' '}
-                <span style={{ fontWeight: 'bold' }}>
-                  {offering.inInventory}
-                </span>
-              </CardDescription>
-            </CardHeader>
+              {new Intl.NumberFormat('de-DE', {
+                style: 'currency',
+                currency: 'EUR',
+              }).format(offering.priceCents / 100)}
+            </span>
+          </CardFooter>
+        </div>
 
-            <CardFooter>
-              <span
-                className={`text-3xl font-extrabold ${
-                  offering.discounted && !offering.discontinued ?
-                    'text-red-700'
-                  : 'text-foreground'
-                }`}
-              >
-                {new Intl.NumberFormat('de-DE', {
-                  style: 'currency',
-                  currency: 'EUR',
-                }).format(offering.priceCents / 100)}
-              </span>
-            </CardFooter>
+        <div className="flex items-center justify-right group justify-end">
+          <div className="flex relative items-center justify-center right-3">
+            <Image
+              className="relative group-hover:animate-spin-slow-pulsate-cw max-w-none"
+              src={{ src: '/star.svg', height: 150, width: 150 }}
+              alt="decorative star"
+            />
+            <Image
+              className="absolute group-hover:animate-spin-slow-ccw max-w-none"
+              src={{ src: '/star2.svg', height: 135, width: 135 }}
+              alt="decorative star2"
+            />
+
+            <Image
+              className="rotate-25 group-hover:animate-wiggle absolute max-w-none"
+              src={{
+                src: offering.imageUrl,
+                height: 120,
+                width: 120,
+              }}
+              alt={offering.name}
+            />
           </div>
-
-          <div className="flex items-center justify-right group justify-end">
-            <div className="flex relative items-center justify-center right-3">
-              <Image
-                className="relative group-hover:animate-spin-slow-pulsate-cw max-w-none"
-                src={{ src: '/star.svg', height: 150, width: 150 }}
-                alt="decorative star"
-              />
-              <Image
-                className="absolute group-hover:animate-spin-slow-ccw max-w-none"
-                src={{ src: '/star2.svg', height: 135, width: 135 }}
-                alt="decorative star2"
-              />
-
-              <Image
-                className="rotate-25 group-hover:animate-wiggle absolute max-w-none"
-                src={{
-                  src: offering.imageUrl,
-                  height: 120,
-                  width: 120,
-                }}
-                alt={offering.name}
-              />
-            </div>
-          </div>
-        </Card>
-      </Fragment>
-    )
-  })
+        </div>
+      </Card>
+    </>
+  )
 }
 
 interface UpdateOfferingDialogProps {

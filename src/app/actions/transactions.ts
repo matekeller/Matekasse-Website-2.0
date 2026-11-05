@@ -34,7 +34,7 @@ export const topup = async (
   const topupResponse = await topupMatekasse(
     session,
     payer,
-    direction === 'credit' ? -amountCents : amountCents,
+    direction === 'credit' ? amountCents : -amountCents,
   )
 
   if (topupResponse.data == null) {

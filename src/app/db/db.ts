@@ -851,7 +851,7 @@ interface TopupResponse {
   errors?: { message: string }[]
 }
 
-// Negative amountCents credit the balance, positive ones debit it.
+// Positive amountCents credit the balance, negative ones debit it.
 export const topup = async (
   jwt: string,
   payer: string,

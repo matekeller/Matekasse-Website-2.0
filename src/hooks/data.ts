@@ -30,9 +30,14 @@ export const useOfferings = () => {
   return { offerings: data?.data ?? undefined, errors: data?.errors }
 }
 
-// Refreshes SWR data and pages that listen via useDataVersion.
-export const notifyDataChanged = () => {
+// Refreshes cached users, offerings and own user info, e.g. balances.
+export const refreshSharedData = () => {
   void mutate((key) => key !== '/api/session')
+}
+
+// Also reloads pages that listen via useDataVersion.
+export const notifyDataChanged = () => {
+  refreshSharedData()
   window.dispatchEvent(new Event(DATA_CHANGED_EVENT))
 }
 

@@ -1,6 +1,8 @@
 import Image from 'next/image'
 import { DateTime } from 'luxon'
-import { Euro } from 'lucide-react'
+import { Euro, Trash2 } from 'lucide-react'
+import { useState } from 'react'
+import { Button } from '../ui/button'
 import {
   Card,
   CardDescription,
@@ -12,6 +14,14 @@ import { Separator } from '../ui/separator'
 import { Transaction } from '@/app/page'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { OfferingImage } from '@/components/OfferingImage'
+import { DeleteTransactionDialog } from '@/components/homepage/DeleteTransactionDialog'
+import { useOwnUserInfo } from '@/hooks/data'
+import {
+  formatTransactionTime,
+  getTransactionAmountCents,
+  getTransactionTitle,
+} from '@/lib/transactionDisplay'
+import { cn } from '@/lib/utils'
 
 export interface TransactionsAreaProps {
   transactions: Transaction[]
@@ -19,8 +29,19 @@ export interface TransactionsAreaProps {
 }
 
 export const TransactionsArea = (props: TransactionsAreaProps) => {
-  const { transactions, showPayer } = props
+  const { showPayer } = props
   const isMobile = useIsMobile()
+  const canDelete = useOwnUserInfo()?.isAdmin === true
+  const [deletedIds, setDeletedIds] = useState<ReadonlySet<number>>(new Set())
+  const [deleteTarget, setDeleteTarget] = useState<Transaction | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+
+  // Deleted cards update right away instead of reloading the list.
+  const transactions = props.transactions.map((transaction) =>
+    deletedIds.has(transaction.id) ?
+      { ...transaction, deleted: true }
+    : transaction,
+  )
 
   const toDateTime = (timestamp: string) =>
     DateTime.fromISO(timestamp, {
@@ -38,9 +59,6 @@ export const TransactionsArea = (props: TransactionsAreaProps) => {
 
     return toRelative[0].toUpperCase() + toRelative.slice(1) + ', ' + toFormat
   }
-
-  const getDateTimeFormat = (timestamp: string): string =>
-    toDateTime(timestamp).toFormat('dd.LL.yyyy – HH:mm')
 
   return (
     <>
@@ -90,11 +108,7 @@ export const TransactionsArea = (props: TransactionsAreaProps) => {
                       : undefined
                     }
                   >
-                    {transaction.offeringId !== 'topup' ?
-                      transaction.readableName
-                    : transaction.pricePaidCents < 0 ?
-                      'Aufladung'
-                    : 'Ausbuchung'}
+                    {getTransactionTitle(transaction)}
                   </CardTitle>
 
                   <CardDescription
@@ -152,11 +166,7 @@ export const TransactionsArea = (props: TransactionsAreaProps) => {
                     {new Intl.NumberFormat('de-DE', {
                       style: 'currency',
                       currency: 'EUR',
-                    }).format(
-                      (transaction.offeringId === 'topup' ?
-                        -1 * transaction.pricePaidCents
-                      : transaction.pricePaidCents) / 100,
-                    )}
+                    }).format(getTransactionAmountCents(transaction) / 100)}
                   </span>
                 </CardFooter>
               </div>
@@ -199,27 +209,57 @@ export const TransactionsArea = (props: TransactionsAreaProps) => {
               )}
 
               <div
-                className={`text-xs text-muted${
-                  transaction.deleted ? '' : '-foreground'
-                } px-6 justify-self-end whitespace-nowrap`}
-                style={
-                  transaction.deleted ?
-                    {
-                      textDecorationLine: 'line-through',
-                      textDecorationThickness: '1pt',
-                      gridArea: 'date',
-                    }
-                  : {
-                      gridArea: 'date',
-                    }
-                }
+                className={cn(
+                  'flex items-center justify-end gap-1 justify-self-end pl-6',
+                  canDelete && !transaction.deleted ? 'pr-3' : 'pr-6',
+                )}
+                style={{ gridArea: 'date' }}
               >
-                {getDateTimeFormat(transaction.timestamp)}
+                <span
+                  className={`text-xs text-muted${
+                    transaction.deleted ? '' : '-foreground'
+                  } whitespace-nowrap`}
+                  style={
+                    transaction.deleted ?
+                      {
+                        textDecorationLine: 'line-through',
+                        textDecorationThickness: '1pt',
+                      }
+                    : undefined
+                  }
+                >
+                  {formatTransactionTime(transaction.timestamp)}
+                </span>
+                {canDelete && !transaction.deleted && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    className="-my-2 text-muted-foreground hover:text-destructive"
+                    aria-label="Delete transaction"
+                    title="Delete transaction"
+                    onClick={() => {
+                      setDeleteTarget(transaction)
+                      setDeleteDialogOpen(true)
+                    }}
+                  >
+                    <Trash2 />
+                  </Button>
+                )}
               </div>
             </div>
           </Card>
         </div>
       ))}
+
+      <DeleteTransactionDialog
+        transaction={deleteTarget}
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onDeleted={(transactionId) =>
+          setDeletedIds((cur) => new Set(cur).add(transactionId))
+        }
+      />
     </>
   )
 }

@@ -19,7 +19,8 @@ import {
   stopStream,
 } from '@/lib/barcode/camera'
 import {
-  decodeImageData,
+  Decoder,
+  WebAssemblyUnavailableError,
   loadDecoder,
   needsConfirmation,
 } from '@/lib/barcode/decoder'
@@ -47,6 +48,18 @@ const DECODE_PASSES: {
 const CONFIRM_WINDOW_MS = 1500
 const PREFERRED_ZOOM = 2
 const CAMERA_STORAGE_KEY = 'matekasse.scanner.camera'
+// A single bad frame should not stop scanning.
+const MAX_FRAME_FAILURES = 5
+
+const WEBASSEMBLY_MESSAGE =
+  'The barcode reader needs WebAssembly, which this browser has turned off, usually through a security setting. Allow it for this site, or type the ID instead.'
+const LOAD_MESSAGE =
+  'The barcode reader could not be loaded. Check the connection, then try again.'
+const DECODE_MESSAGE =
+  'The barcode reader stopped working. Try again, or type the ID instead.'
+
+const describeError = (error: unknown) =>
+  error instanceof Error ? `${error.name}: ${error.message}` : 'Unknown error'
 
 type Status = 'starting' | 'scanning' | 'done' | 'error'
 
@@ -63,6 +76,7 @@ export const BarcodeScanner = (props: BarcodeScannerProps) => {
 
   const [status, setStatus] = useState<Status>('starting')
   const [error, setError] = useState<string | null>(null)
+  const [errorDetail, setErrorDetail] = useState<string | null>(null)
   const [deviceId, setDeviceId] = useState<string | null>(() =>
     typeof window === 'undefined' ? null : (
       localStorage.getItem(CAMERA_STORAGE_KEY)
@@ -87,6 +101,7 @@ export const BarcodeScanner = (props: BarcodeScannerProps) => {
     const start = async () => {
       setStatus('starting')
       setError(null)
+      setErrorDetail(null)
 
       if (!isCameraSupported()) {
         setError(
@@ -140,6 +155,7 @@ export const BarcodeScanner = (props: BarcodeScannerProps) => {
       } catch (cameraError) {
         if (!isCancelled()) {
           setError(describeCameraError(cameraError))
+          setErrorDetail(describeError(cameraError))
           setStatus('error')
         }
       }
@@ -176,11 +192,21 @@ export const BarcodeScanner = (props: BarcodeScannerProps) => {
     let timer: number | undefined
     let candidate: { text: string; at: number } | null = null
     let frameIndex = 0
+    let failures = 0
     const canvas = document.createElement('canvas')
     const context = canvas.getContext('2d', { willReadFrequently: true })
     if (context !== null) context.imageSmoothingQuality = 'high'
 
-    const tick = async () => {
+    const fail = (message: string, cause: unknown) => {
+      if (stopped) return
+      stopped = true
+      console.error('Barcode scanner failed', cause)
+      setError(message)
+      setErrorDetail(describeError(cause))
+      setStatus('error')
+    }
+
+    const tick = async (decode: Decoder) => {
       const startedAt = performance.now()
       const video = videoRef.current
       const container = containerRef.current
@@ -198,31 +224,32 @@ export const BarcodeScanner = (props: BarcodeScannerProps) => {
         const scale = Math.min(1, pass.maxWidth / region.width)
         canvas.width = Math.max(1, Math.round(region.width * scale))
         canvas.height = Math.max(1, Math.round(region.height * scale))
-        context.drawImage(
-          video,
-          region.x,
-          region.y,
-          region.width,
-          region.height,
-          0,
-          0,
-          canvas.width,
-          canvas.height,
-        )
-
-        const imageData = context.getImageData(
-          0,
-          0,
-          canvas.width,
-          canvas.height,
-        )
-        if (pass.enhance !== null) {
-          enhanceLinearCode(imageData, pass.enhance === 'sharpen')
-        }
 
         try {
-          const result = await decodeImageData(imageData)
+          context.drawImage(
+            video,
+            region.x,
+            region.y,
+            region.width,
+            region.height,
+            0,
+            0,
+            canvas.width,
+            canvas.height,
+          )
+          const imageData = context.getImageData(
+            0,
+            0,
+            canvas.width,
+            canvas.height,
+          )
+          if (pass.enhance !== null) {
+            enhanceLinearCode(imageData, pass.enhance === 'sharpen')
+          }
+
+          const result = await decode(imageData)
           if (stopped) return
+          failures = 0
 
           if (result !== null) {
             const now = performance.now()
@@ -241,26 +268,35 @@ export const BarcodeScanner = (props: BarcodeScannerProps) => {
 
             candidate = { text: result.text, at: now }
           }
-        } catch {
-          if (!stopped) {
-            setError(
-              'The barcode reader could not be loaded. Check the connection, then try again.',
-            )
-            setStatus('error')
+        } catch (frameError) {
+          failures++
+          if (failures >= MAX_FRAME_FAILURES) {
+            fail(DECODE_MESSAGE, frameError)
+            return
           }
-          return
         }
       }
 
       if (!stopped) {
         timer = window.setTimeout(
-          () => void tick(),
+          () => void tick(decode),
           Math.max(0, SCAN_INTERVAL_MS - (performance.now() - startedAt)),
         )
       }
     }
 
-    void tick()
+    void loadDecoder().then(
+      (decode) => {
+        if (!stopped) void tick(decode)
+      },
+      (loadError: unknown) => {
+        fail(
+          loadError instanceof WebAssemblyUnavailableError ? WEBASSEMBLY_MESSAGE
+          : LOAD_MESSAGE,
+          loadError,
+        )
+      },
+    )
 
     return () => {
       stopped = true
@@ -350,6 +386,11 @@ export const BarcodeScanner = (props: BarcodeScannerProps) => {
         {status === 'error' && (
           <div className="absolute inset-0 grid place-content-center justify-items-center gap-3 bg-black/80 p-4 text-center text-sm text-white">
             <p>{error}</p>
+            {errorDetail !== null && (
+              <p className="text-xs break-words opacity-60 select-text">
+                {errorDetail}
+              </p>
+            )}
             <Button
               type="button"
               variant="secondary"

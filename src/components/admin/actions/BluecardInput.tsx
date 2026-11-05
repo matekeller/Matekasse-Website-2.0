@@ -1,7 +1,7 @@
 'use client'
 import { ScanBarcode } from 'lucide-react'
 import { useState } from 'react'
-import { BarQRCodeScanner } from '@/components/admin/users/Scanner'
+import { BarcodeScanner } from '@/components/scanner/BarcodeScanner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -50,17 +50,12 @@ export const BluecardInput = (props: BluecardInputProps) => {
         </Button>
       </div>
       {scanning && (
-        <div className="overflow-hidden rounded-md border">
-          <BarQRCodeScanner
-            onScan={(codes) => {
-              const code = codes.at(0)?.rawValue
-              if (code !== undefined) {
-                onChange(code)
-                setScanning(false)
-              }
-            }}
-          />
-        </div>
+        <BarcodeScanner
+          onScan={(code) => {
+            onChange(code)
+            setScanning(false)
+          }}
+        />
       )}
       {warning !== undefined && (
         <span className="text-xs text-red-400">{warning}</span>

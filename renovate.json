@@ -6,6 +6,7 @@
     "helpers:pinGitHubActionDigests"
   ],
   "minimumReleaseAge": "3 days",
+  "lockFileMaintenance": { "enabled": true },
   "packageRules": [
     {
       "description": "@cloudflare/next-on-pages only supports next <= 15.5.2, so stay on the patched 15.4 line.",

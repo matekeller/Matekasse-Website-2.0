@@ -6,7 +6,7 @@ const jsonString = () =>
     try {
       return JSON.parse(value)
     } catch {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Invalid JSON' })
+      ctx.addIssue({ code: 'custom', message: 'Invalid JSON' })
       return z.NEVER
     }
   })
@@ -66,7 +66,7 @@ export const UpdateOfferingFormSchema = z.object({
 export const TopupFormSchema = z.object({
   payer: z.string().trim().min(1, 'Select a user'),
   amount: z.coerce
-    .number({ invalid_type_error: 'Enter a valid amount' })
+    .number({ error: 'Enter a valid amount' })
     .transform((euros) => Math.round(euros * 100))
     .refine((cents) => cents > 0, 'Amount must be at least 0,01 €'),
   direction: z.enum(['credit', 'debit']),

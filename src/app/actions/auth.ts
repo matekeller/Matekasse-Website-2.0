@@ -1,4 +1,5 @@
 import { mutate } from 'swr'
+import { z } from 'zod'
 import { FormState, LoginFormSchema } from '../lib/definitions'
 import { createMatekasseSession } from '../db/db'
 import { deleteSession, saveSession } from '../lib/session'
@@ -11,7 +12,7 @@ export const login = async (state: FormState, formData: FormData) => {
 
   if (!validatedFields.success) {
     return {
-      errors: validatedFields.error.flatten().fieldErrors,
+      errors: z.flattenError(validatedFields.error).fieldErrors,
     }
   }
 

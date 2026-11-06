@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import {
   ActionState,
   RegisterFormSchema,
@@ -20,7 +21,7 @@ export const updateBluecardID = async (
 
   if (!validatedFields.success) {
     return {
-      errors: validatedFields.error.flatten().fieldErrors,
+      errors: z.flattenError(validatedFields.error).fieldErrors,
     }
   }
 
@@ -55,7 +56,7 @@ export const register = async (
   })
 
   if (!validatedFields.success) {
-    return { errors: validatedFields.error.flatten().fieldErrors }
+    return { errors: z.flattenError(validatedFields.error).fieldErrors }
   }
 
   const { fullName, username, bluecardId, password, session } =

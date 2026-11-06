@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import {
   BookingState,
   PurchaseFormSchema,
@@ -21,7 +22,7 @@ export const topup = async (
   })
 
   if (!validatedFields.success) {
-    return { errors: validatedFields.error.flatten().fieldErrors }
+    return { errors: z.flattenError(validatedFields.error).fieldErrors }
   }
 
   const {
@@ -59,7 +60,7 @@ export const purchase = async (
   })
 
   if (!validatedFields.success) {
-    return { errors: validatedFields.error.flatten().fieldErrors }
+    return { errors: z.flattenError(validatedFields.error).fieldErrors }
   }
 
   const { payer, items, session } = validatedFields.data

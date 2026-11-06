@@ -39,16 +39,22 @@ export interface DBTransaction {
   deleted: boolean
 }
 
-interface SignInResponse {
-  data: { signIn: string } | null
+export interface AuthTokens {
+  accessToken: string
+  refreshToken: string
+  expiresIn: number
+}
+
+interface CreateSessionResponse {
+  data: { createSession: AuthTokens } | null
   errors?: { message: string }[]
 }
 
-export const logIntoMatekasse = async (
+export const createMatekasseSession = async (
   username: string,
   password: string,
 ): Promise<{
-  jwt: string | null
+  tokens: AuthTokens | null
   errors?: string[]
 } | null> => {
   try {
@@ -56,39 +62,96 @@ export const logIntoMatekasse = async (
       { Accept: 'application/json' },
       JSON.stringify(
         gql.mutation({
-          operation: 'signIn',
+          operation: 'createSession',
           variables: { username, password: password },
-          fields: [],
+          fields: ['accessToken', 'refreshToken', 'expiresIn'],
         }),
       ),
     )
 
     if (response.ok && response.status === 200) {
-      const rsp = (await response.json()) as SignInResponse
+      const rsp = (await response.json()) as CreateSessionResponse
 
       if (rsp.errors !== undefined && rsp.data == null) {
         return {
-          jwt: null,
+          tokens: null,
           errors: rsp.errors.map((error: { message: string }) => error.message),
         }
       }
 
       assert(rsp.data != null)
 
-      return { jwt: rsp.data.signIn }
+      return { tokens: rsp.data.createSession }
     } else {
-      const rsp = (await response.json()) as SignInResponse
+      const rsp = (await response.json()) as CreateSessionResponse
 
       assert(rsp.errors != null)
 
       return {
-        jwt: null,
+        tokens: null,
         errors: rsp.errors.map((error: { message: string }) => error.message),
       }
     }
   } catch (e) {
     console.error(e)
-    return { jwt: null, errors: ['Error while executing signIn request'] }
+    return {
+      tokens: null,
+      errors: ['Error while executing createSession request'],
+    }
+  }
+}
+
+export const refreshMatekasseSession = async (
+  refreshToken: string,
+): Promise<AuthTokens | null> => {
+  try {
+    const response = await fetch('https://api.matekasse.de/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(
+        gql.mutation({
+          operation: 'refreshSession',
+          variables: { refreshToken },
+          fields: ['accessToken', 'refreshToken', 'expiresIn'],
+        }),
+      ),
+    })
+    const result = (await response.json()) as {
+      data?: { refreshSession: AuthTokens }
+      errors?: { message: string }[]
+    }
+    return response.ok && !result.errors ?
+        (result.data?.refreshSession ?? null)
+      : null
+  } catch (error) {
+    console.error('Error while refreshing session.', error)
+    return null
+  }
+}
+
+export const revokeMatekasseSession = async (
+  refreshToken: string,
+): Promise<void> => {
+  try {
+    await fetch('https://api.matekasse.de/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(
+        gql.mutation({
+          operation: 'signOut',
+          variables: { refreshToken },
+          fields: [],
+        }),
+      ),
+    })
+  } catch (error) {
+    console.error('Error while signing out.', error)
   }
 }
 

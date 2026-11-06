@@ -16,6 +16,6 @@ export const useSession = () => {
     data: session,
     error,
     isLoading,
-  } = useSWR('/api/session', fetchSession)
+  } = useSWR('/api/session', fetchSession, { refreshInterval: 30_000 })
   return { session, error, isLoading }
 }

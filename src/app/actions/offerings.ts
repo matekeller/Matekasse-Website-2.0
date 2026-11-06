@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { FormState, UpdateOfferingFormSchema } from '../lib/definitions'
 import { updateOffering as updateMatekasseOffering } from '../db/db'
 
@@ -16,7 +17,7 @@ export const updateOffering = async (state: FormState, formData: FormData) => {
 
   if (!validatedFields.success) {
     return {
-      errors: validatedFields.error.flatten().fieldErrors,
+      errors: z.flattenError(validatedFields.error).fieldErrors,
     }
   }
 

@@ -23,6 +23,8 @@ import { getTransactions } from '@/lib/utils'
 
 export default function Home() {
   const { session } = useSession()
+  // Token refreshes change `session`; reloading on them would reset the list.
+  const hasSession = session !== undefined
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [cursor, setCursor] = useState<number | null>(null)
   const dataVersion = useDataVersion()
@@ -55,7 +57,7 @@ export default function Home() {
     }
 
     void fetchData()
-  }, [session, dataVersion])
+  }, [hasSession, dataVersion])
 
   useEffect(() => {
     if (!session || !inView || !cursor) return
@@ -75,7 +77,7 @@ export default function Home() {
     }
 
     void fetchMoreTransactions()
-  }, [session, cursor, inView])
+  }, [hasSession, cursor, inView])
 
   return (
     <>

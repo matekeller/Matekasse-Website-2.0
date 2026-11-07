@@ -7,22 +7,41 @@ import { fetchOfferings, fetchOwnUserInfo, fetchUsers } from '@/app/db/db'
 
 const DATA_CHANGED_EVENT = 'matekasse:data-changed'
 
+// Keyed per signed-in user, not per access token: a token refresh would
+// otherwise empty the cache and briefly hide everything admin-only.
+const USER_DATA_KEYS = new Set(['me', 'users'])
+
 export const useOwnUserInfo = () => {
   const { session } = useSession()
-  const { data } = useSWR(
-    session ? ['me', session] : null,
-    ([, jwt]: [string, string]) => fetchOwnUserInfo(jwt),
+  const { data } = useSWR(session === undefined ? null : 'me', () =>
+    session === undefined ? null : fetchOwnUserInfo(session),
   )
   return data?.data ?? undefined
 }
 
 export const useUsers = () => {
   const { session } = useSession()
-  const { data } = useSWR(
-    session ? ['users', session] : null,
-    ([, jwt]: [string, string]) => fetchUsers(jwt),
+  const { data } = useSWR(session === undefined ? null : 'users', () =>
+    session === undefined ? null : fetchUsers(session),
   )
   return { users: data?.data ?? undefined, errors: data?.errors }
+}
+
+// Drops the previous user's data once signed out, so the next one never sees it.
+// Revalidating also discards SWR's request deduplication for these keys; no
+// hook is subscribed to them while signed out, so nothing is fetched.
+export const useClearUserDataOnSignOut = () => {
+  const { session, isLoading } = useSession()
+
+  useEffect(() => {
+    if (!isLoading && session === undefined) {
+      void mutate(
+        (key) => typeof key === 'string' && USER_DATA_KEYS.has(key),
+        undefined,
+        { revalidate: true },
+      )
+    }
+  }, [session, isLoading])
 }
 
 export const useOfferings = () => {

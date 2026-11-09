@@ -5,6 +5,7 @@ import { AppSidebar } from '@/components/homepage/AppSidebar'
 import { LoginForm } from '@/components/LoginForm'
 import { useSession } from '@/hooks/session'
 import { useClearUserDataOnSignOut } from '@/hooks/data'
+import { useAdminLandingRedirect } from '@/hooks/landing'
 import { AdminActionsProvider } from '@/components/admin/actions/AdminActions'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -12,6 +13,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 export const AppShell = ({ children }: { children: React.ReactNode }) => {
   const { session, isLoading } = useSession()
   useClearUserDataOnSignOut()
+  useAdminLandingRedirect()
 
   return (
     <>

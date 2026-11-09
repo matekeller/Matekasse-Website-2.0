@@ -63,15 +63,31 @@ export const UpdateOfferingFormSchema = z.object({
   session: z.string().trim(),
 })
 
-export const TopupFormSchema = z.object({
-  payer: z.string().trim().min(1, 'Select a user'),
-  amount: z.coerce
+// Parses an amount in euros into cents.
+const euroAmount = () =>
+  z.coerce
     .number({ error: 'Enter a valid amount' })
     .transform((euros) => Math.round(euros * 100))
-    .refine((cents) => cents > 0, 'Amount must be at least 0,01 €'),
+    .refine((cents) => cents > 0, 'Amount must be at least 0,01 €')
+
+export const TopupFormSchema = z.object({
+  payer: z.string().trim().min(1, 'Select a user'),
+  amount: euroAmount(),
   direction: z.enum(['credit', 'debit']),
   session: z.string().trim(),
 })
+
+export const TransferFormSchema = z
+  .object({
+    payer: z.string().trim().min(1, 'Select a user to transfer from'),
+    recipient: z.string().trim().min(1, 'Select a user to transfer to'),
+    amount: euroAmount(),
+    session: z.string().trim(),
+  })
+  .refine((transfer) => transfer.payer !== transfer.recipient, {
+    error: 'Select two different users',
+    path: ['recipient'],
+  })
 
 export const MAX_PURCHASE_ITEMS = 50
 

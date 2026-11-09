@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label'
 const MAX_SUGGESTIONS = 6
 
 interface UserPickerProps {
+  label?: string
   users: DBUser[] | undefined
   value: string | null
   onChange: (username: string | null) => void
@@ -18,7 +19,7 @@ interface UserPickerProps {
 }
 
 export const UserPicker = (props: UserPickerProps) => {
-  const { users, value, onChange, disabled } = props
+  const { label = 'User', users, value, onChange, disabled } = props
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
@@ -43,7 +44,7 @@ export const UserPicker = (props: UserPickerProps) => {
   if (value !== null) {
     return (
       <div className="grid gap-2">
-        <Label>User</Label>
+        <Label>{label}</Label>
         <div className="flex items-center gap-3 rounded-md border py-2 pr-2 pl-3">
           <div className="flex min-w-0 flex-1 flex-col">
             <span className="font-medium">@{value}</span>
@@ -74,7 +75,7 @@ export const UserPicker = (props: UserPickerProps) => {
 
   return (
     <div className="relative grid gap-2">
-      <Label htmlFor={`${id}-input`}>User</Label>
+      <Label htmlFor={`${id}-input`}>{label}</Label>
       <Input
         id={`${id}-input`}
         role="combobox"

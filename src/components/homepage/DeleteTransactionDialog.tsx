@@ -2,10 +2,10 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { undoTransactions } from '@/app/actions/transactions'
-import { Transaction } from '@/app/page'
 import { refreshSharedData } from '@/hooks/data'
 import { useSession } from '@/hooks/session'
 import {
+  ListedTransaction,
   formatTransactionTime,
   getTransactionAmountCents,
   getTransactionTitle,
@@ -22,10 +22,10 @@ import {
 import { formatCents } from '@/components/admin/actions/shared'
 
 interface DeleteTransactionDialogProps {
-  transaction: Transaction | null
+  transaction: ListedTransaction | null
   open: boolean
   onOpenChange: (open: boolean) => void
-  onDeleted: (transactionId: number) => void
+  onDeleted: (transactionIds: number[]) => void
 }
 
 export const DeleteTransactionDialog = (
@@ -49,9 +49,9 @@ export const DeleteTransactionDialog = (
 }
 
 interface DeleteTransactionFormProps {
-  transaction: Transaction
+  transaction: ListedTransaction
   onClose: () => void
-  onDeleted: (transactionId: number) => void
+  onDeleted: (transactionIds: number[]) => void
 }
 
 const DeleteTransactionForm = (props: DeleteTransactionFormProps) => {
@@ -60,32 +60,60 @@ const DeleteTransactionForm = (props: DeleteTransactionFormProps) => {
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const payout = transaction.transferPayout
+  const transactionIds =
+    payout === undefined ? [transaction.id] : [transaction.id, payout.id]
+
   const deleteTransaction = async () => {
     if (session === undefined) return
 
     setPending(true)
     setError(null)
-    const errors = await undoTransactions(session, [transaction.id])
-    setPending(false)
 
-    if (errors.length > 0) {
-      setError(errors.join(', '))
-      return
+    const deletedIds: number[] = []
+    const errors: string[] = []
+
+    for (const transactionId of transactionIds) {
+      const undoErrors = await undoTransactions(session, [transactionId])
+      if (undoErrors.length === 0) deletedIds.push(transactionId)
+      errors.push(...undoErrors)
     }
 
-    toast.success('Transaction deleted')
-    onDeleted(transaction.id)
-    refreshSharedData()
-    onClose()
+    setPending(false)
+
+    if (deletedIds.length > 0) {
+      onDeleted(deletedIds)
+      refreshSharedData()
+    }
+
+    if (errors.length === 0) {
+      toast.success(
+        payout === undefined ? 'Transaction deleted' : 'Transfer deleted',
+      )
+      onClose()
+    } else if (deletedIds.length > 0) {
+      // The list now shows the remaining booking on its own.
+      toast.error('Only part of the transfer has been deleted', {
+        description: errors.join(', '),
+      })
+      onClose()
+    } else {
+      setError(errors.join(', '))
+    }
   }
 
   return (
     <div className="grid gap-4">
       <DialogHeader>
-        <DialogTitle>Delete transaction?</DialogTitle>
+        <DialogTitle>
+          {payout === undefined ? 'Delete transaction?' : 'Delete transfer?'}
+        </DialogTitle>
         <DialogDescription>
-          It no longer counts towards @{transaction.payerUsername}&apos;s
-          balance. This cannot be undone.
+          {payout === undefined ?
+            `It no longer counts towards @${transaction.payerUsername}'s balance.`
+          : `It no longer counts towards the balances of @${payout.payerUsername} and @${transaction.payerUsername}.`
+          }{' '}
+          This cannot be undone.
         </DialogDescription>
       </DialogHeader>
 
@@ -95,8 +123,10 @@ const DeleteTransactionForm = (props: DeleteTransactionFormProps) => {
             {getTransactionTitle(transaction)}
           </span>
           <span className="text-xs text-muted-foreground">
-            @{transaction.payerUsername} ·{' '}
-            {formatTransactionTime(transaction.timestamp)}
+            {payout === undefined ?
+              `@${transaction.payerUsername}`
+            : `@${payout.payerUsername} → @${transaction.payerUsername}`}{' '}
+            · {formatTransactionTime(transaction.timestamp)}
           </span>
         </div>
         <span className="shrink-0 text-lg font-semibold">

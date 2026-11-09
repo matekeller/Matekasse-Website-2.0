@@ -3,6 +3,7 @@ import {
   BookingState,
   PurchaseFormSchema,
   TopupFormSchema,
+  TransferFormSchema,
 } from '../lib/definitions'
 import {
   purchase as purchaseMatekasse,
@@ -47,6 +48,61 @@ export const topup = async (
   }
 
   return { success: true, transactionIds: [topupResponse.data.id] }
+}
+
+export const transfer = async (
+  state: BookingState,
+  formData: FormData,
+): Promise<BookingState> => {
+  const validatedFields = TransferFormSchema.safeParse({
+    payer: formData.get('payer'),
+    recipient: formData.get('recipient'),
+    amount: formData.get('amount'),
+    session: formData.get('session'),
+  })
+
+  if (!validatedFields.success) {
+    return { errors: z.flattenError(validatedFields.error).fieldErrors }
+  }
+
+  const {
+    payer,
+    recipient,
+    amount: amountCents,
+    session,
+  } = validatedFields.data
+
+  const payoutResponse = await topupMatekasse(session, payer, -amountCents)
+
+  if (payoutResponse.data == null) {
+    return {
+      message:
+        `An error occurred while debiting @${payer}: ` +
+        (payoutResponse.errors?.join(', ') ?? 'unknown error'),
+    }
+  }
+
+  const payoutId = payoutResponse.data.id
+  const topupResponse = await topupMatekasse(session, recipient, amountCents)
+
+  if (topupResponse.data == null) {
+    const error =
+      `An error occurred while crediting @${recipient}: ` +
+      (topupResponse.errors?.join(', ') ?? 'unknown error')
+    const undoErrors = await undoTransactions(session, [payoutId])
+
+    if (undoErrors.length === 0) {
+      return { message: `${error}. The debit of @${payer} has been undone.` }
+    }
+
+    // Only the payout is booked.
+    return {
+      message: `${error}. Undoing the debit of @${payer} failed: ${undoErrors.join(', ')}`,
+      transactionIds: [payoutId],
+    }
+  }
+
+  return { success: true, transactionIds: [payoutId, topupResponse.data.id] }
 }
 
 export const purchase = async (

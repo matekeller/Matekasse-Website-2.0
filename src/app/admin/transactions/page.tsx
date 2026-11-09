@@ -101,7 +101,11 @@ export default function Home() {
 
       <div className="flex flex-1 flex-col gap-4 p-4">
         <ScrollArea>
-          <TransactionsArea transactions={transactions} showPayer />
+          <TransactionsArea
+            transactions={transactions}
+            showPayer
+            mergeTransfers
+          />
           {transactions.length !== 0 && (
             <Cat className="text-muted w-full h-50" ref={ref} />
           )}

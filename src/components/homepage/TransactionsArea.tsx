@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import { DateTime } from 'luxon'
-import { Euro, Trash2 } from 'lucide-react'
+import { Euro, Trash2, UsersRoundCollaboration } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '../ui/button'
 import {
@@ -17,31 +17,41 @@ import { OfferingImage } from '@/components/OfferingImage'
 import { DeleteTransactionDialog } from '@/components/homepage/DeleteTransactionDialog'
 import { useOwnUserInfo } from '@/hooks/data'
 import {
+  ListedTransaction,
   formatTransactionTime,
   getTransactionAmountCents,
   getTransactionTitle,
+  mergeTransferPairs,
 } from '@/lib/transactionDisplay'
 import { cn } from '@/lib/utils'
 
 export interface TransactionsAreaProps {
   transactions: Transaction[]
   showPayer?: boolean
+  // Lists a top-up and a payout right after each other as one transfer.
+  mergeTransfers?: boolean
 }
 
 export const TransactionsArea = (props: TransactionsAreaProps) => {
-  const { showPayer } = props
+  const { showPayer, mergeTransfers } = props
   const isMobile = useIsMobile()
   const canDelete = useOwnUserInfo()?.isAdmin === true
   const [deletedIds, setDeletedIds] = useState<ReadonlySet<number>>(new Set())
-  const [deleteTarget, setDeleteTarget] = useState<Transaction | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<ListedTransaction | null>(
+    null,
+  )
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   // Deleted cards update right away instead of reloading the list.
-  const transactions = props.transactions.map((transaction) =>
+  const updatedTransactions = props.transactions.map((transaction) =>
     deletedIds.has(transaction.id) ?
       { ...transaction, deleted: true }
     : transaction,
   )
+  const transactions: ListedTransaction[] =
+    mergeTransfers === true ?
+      mergeTransferPairs(updatedTransactions)
+    : updatedTransactions
 
   const toDateTime = (timestamp: string) =>
     DateTime.fromISO(timestamp, {
@@ -122,9 +132,19 @@ export const TransactionsArea = (props: TransactionsAreaProps) => {
                     }
                     className={transaction.deleted ? 'text-muted' : undefined}
                   >
-                    {showPayer && (
+                    {transaction.transferPayout !== undefined ?
                       <>
-                        paid by{' '}
+                        from{' '}
+                        <span
+                          className={
+                            transaction.deleted ? 'text-muted' : (
+                              'text-accent-foreground'
+                            )
+                          }
+                        >
+                          @{transaction.transferPayout.payerUsername}
+                        </span>{' '}
+                        to{' '}
                         <span
                           className={
                             transaction.deleted ? 'text-muted' : (
@@ -136,7 +156,22 @@ export const TransactionsArea = (props: TransactionsAreaProps) => {
                         </span>
                         <br />
                       </>
-                    )}
+                    : showPayer && (
+                        <>
+                          paid by{' '}
+                          <span
+                            className={
+                              transaction.deleted ? 'text-muted' : (
+                                'text-accent-foreground'
+                              )
+                            }
+                          >
+                            @{transaction.payerUsername}
+                          </span>
+                          <br />
+                        </>
+                      )
+                    }
                     authorized by{' '}
                     <span
                       className={
@@ -191,7 +226,13 @@ export const TransactionsArea = (props: TransactionsAreaProps) => {
                       src={{ src: '/star2.svg', height: 135, width: 135 }}
                       alt="decorative star2"
                     />
-                    {transaction.offeringId !== 'topup' ?
+                    {transaction.transferPayout !== undefined ?
+                      <UsersRoundCollaboration
+                        height={120}
+                        width={120}
+                        className="text-background rotate-25 group-hover:animate-wiggle absolute max-w-none"
+                      />
+                    : transaction.offeringId !== 'topup' ?
                       <OfferingImage
                         className="rotate-25 group-hover:animate-wiggle absolute max-w-none text-background"
                         src={transaction.imageUrl}
@@ -236,8 +277,16 @@ export const TransactionsArea = (props: TransactionsAreaProps) => {
                     variant="ghost"
                     size="icon-sm"
                     className="-my-2 text-muted-foreground hover:text-destructive"
-                    aria-label="Delete transaction"
-                    title="Delete transaction"
+                    aria-label={
+                      transaction.transferPayout !== undefined ?
+                        'Delete transfer'
+                      : 'Delete transaction'
+                    }
+                    title={
+                      transaction.transferPayout !== undefined ?
+                        'Delete transfer'
+                      : 'Delete transaction'
+                    }
                     onClick={() => {
                       setDeleteTarget(transaction)
                       setDeleteDialogOpen(true)
@@ -256,8 +305,8 @@ export const TransactionsArea = (props: TransactionsAreaProps) => {
         transaction={deleteTarget}
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
-        onDeleted={(transactionId) =>
-          setDeletedIds((cur) => new Set(cur).add(transactionId))
+        onDeleted={(transactionIds) =>
+          setDeletedIds((cur) => new Set([...cur, ...transactionIds]))
         }
       />
     </>

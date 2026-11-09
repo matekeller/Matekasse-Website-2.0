@@ -9,8 +9,10 @@ import {
   Unplug,
   Users,
 } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { Separator } from '../ui/separator'
 import { Button } from '../ui/button'
 import { Avatar, AvatarFallback } from '../ui/avatar'
@@ -133,6 +135,27 @@ const getNameAbbreviation = (
   return undefined
 }
 
+interface SidebarLinkProps {
+  href: string
+  icon: LucideIcon
+  label: string
+}
+
+const SidebarLink = ({ href, icon: Icon, label }: SidebarLinkProps) => {
+  const pathname = usePathname()
+  const isActive =
+    pathname === href || (href !== '/' && pathname.startsWith(`${href}/`))
+
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton render={<Link href={href} />} isActive={isActive}>
+        <Icon />
+        <span>{label}</span>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  )
+}
+
 interface SideBarContentProps {
   onClick: (event: React.MouseEvent) => void
 }
@@ -143,24 +166,14 @@ const StandardUserSideBarContent = ({ onClick }: SideBarContentProps) => {
       <SidebarGroup>
         <SidebarGroupContent>
           <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton render={<Link href="/" />}>
-                <ReceiptText />
-                <span>Transactions</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            <SidebarLink href="/" icon={ReceiptText} label="Transactions" />
             {/* <SidebarMenuItem>
           <SidebarMenuButton render={<Link href="/stats" />}>
               <LucideChartNoAxesCombined />
             <span>Statistics</span>
           </SidebarMenuButton>
         </SidebarMenuItem> */}
-            <SidebarMenuItem>
-              <SidebarMenuButton render={<Link href="/offerings" />}>
-                <CupSoda />
-                <span>Offerings</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            <SidebarLink href="/offerings" icon={CupSoda} label="Offerings" />
             <Separator />
             <SidebarMenuItem>
               <SidebarMenuButton
@@ -189,28 +202,17 @@ const AdminUserSideBarContent = ({ onClick }: SideBarContentProps) => {
           <CollapsibleContent>
             <SidebarGroupContent>
               <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    render={<Link href="/admin/transactions" />}
-                  >
-                    <ReceiptText />
-                    <span>All Transactions</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-
-                <SidebarMenuItem>
-                  <SidebarMenuButton render={<Link href="/admin/users" />}>
-                    <Users />
-                    <span>Users</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-
-                <SidebarMenuItem>
-                  <SidebarMenuButton render={<Link href="/admin/inventory" />}>
-                    <Boxes />
-                    <span>Inventory</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                <SidebarLink
+                  href="/admin/transactions"
+                  icon={ReceiptText}
+                  label="All Transactions"
+                />
+                <SidebarLink href="/admin/users" icon={Users} label="Users" />
+                <SidebarLink
+                  href="/admin/inventory"
+                  icon={Boxes}
+                  label="Inventory"
+                />
               </SidebarMenu>
             </SidebarGroupContent>
           </CollapsibleContent>
@@ -226,24 +228,18 @@ const AdminUserSideBarContent = ({ onClick }: SideBarContentProps) => {
           <CollapsibleContent>
             <SidebarGroupContent>
               <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton render={<Link href="/" />}>
-                    <ReceiptText />
-                    <span>Transactions</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                <SidebarLink href="/" icon={ReceiptText} label="Transactions" />
                 {/* <SidebarMenuItem>
           <SidebarMenuButton render={<Link href="/stats" />}>
               <LucideChartNoAxesCombined />
             <span>Statistics</span>
           </SidebarMenuButton>
         </SidebarMenuItem> */}
-                <SidebarMenuItem>
-                  <SidebarMenuButton render={<Link href="/offerings" />}>
-                    <CupSoda />
-                    <span>Offerings</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                <SidebarLink
+                  href="/offerings"
+                  icon={CupSoda}
+                  label="Offerings"
+                />
               </SidebarMenu>
             </SidebarGroupContent>
           </CollapsibleContent>

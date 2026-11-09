@@ -1,6 +1,11 @@
 'use client'
 import { useActionState, useEffect, useState } from 'react'
-import { OfferingGrid, OfferingQuantities, countItems } from './OfferingGrid'
+import {
+  OfferingGrid,
+  OfferingQuantities,
+  countItems,
+  rankOfferings,
+} from './OfferingGrid'
 import {
   ACTION_DIALOG_CLASS,
   ActionDialogProps,
@@ -12,7 +17,12 @@ import {
 import { UserPicker } from './UserPicker'
 import { purchase } from '@/app/actions/transactions'
 import { BookingState, MAX_PURCHASE_ITEMS } from '@/app/lib/definitions'
-import { notifyDataChanged, useOfferings, useUsers } from '@/hooks/data'
+import {
+  notifyDataChanged,
+  useOfferings,
+  useSales,
+  useUsers,
+} from '@/hooks/data'
 import { useSession } from '@/hooks/session'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -50,6 +60,16 @@ const PurchaseForm = (props: ActionDialogProps) => {
     purchase,
     {},
   )
+
+  const totalSales = useSales(null)
+
+  const userSales = useSales(username)
+  const rankingLoaded = totalSales !== undefined && userSales !== undefined
+
+  const rankedOfferings =
+    offerings && rankingLoaded ?
+      rankOfferings(offerings, [userSales, totalSales])
+    : undefined
 
   const user = users?.find((candidate) => candidate.username === username)
   const itemCount = countItems(quantities)
@@ -133,7 +153,7 @@ const PurchaseForm = (props: ActionDialogProps) => {
           <p className="text-xs text-red-400">{offeringErrors.join(', ')}</p>
         )}
         <OfferingGrid
-          offerings={offerings}
+          offerings={rankedOfferings}
           quantities={quantities}
           onChange={setQuantities}
           maxItems={MAX_PURCHASE_ITEMS}

@@ -646,6 +646,77 @@ export const fetchUsers = async (
   }
 }
 
+export interface DBSales {
+  offeringId: string
+  qty: number
+}
+
+interface SalesResponse {
+  data: {
+    sales: { soldLastFourWeeks: DBSales[] }
+  } | null
+  errors?: { message: string }[]
+}
+
+// Sales of the last four weeks, of everyone or only of the given user.
+export const fetchSales = async (
+  jwt: string,
+  username: string | null,
+): Promise<{
+  data: DBSales[] | null
+  errors?: string[]
+}> => {
+  try {
+    const response = await fetchBackend(
+      { Accept: 'application/json', Authorization: jwt },
+      JSON.stringify(
+        gql.query({
+          operation: {
+            name: username === null ? 'stats' : 'statsByUser',
+            alias: 'sales',
+          },
+          variables:
+            username === null ?
+              {}
+            : { username: { value: username, required: true } },
+          fields: [
+            {
+              operation: 'soldLastFourWeeks',
+              fields: ['offeringId', 'qty'],
+              variables: {},
+            },
+          ],
+        }),
+      ),
+    )
+
+    if (response.ok && response.status === 200) {
+      const rsp = (await response.json()) as SalesResponse
+
+      if (rsp.errors !== undefined) {
+        return {
+          data: null,
+          errors: rsp.errors.map((error: { message: string }) => error.message),
+        }
+      }
+
+      assert(rsp.data != null)
+
+      return { data: rsp.data.sales.soldLastFourWeeks }
+    } else {
+      const rsp = (await response.json()) as SalesResponse
+
+      return {
+        data: null,
+        errors: rsp.errors?.map((error: { message: string }) => error.message),
+      }
+    }
+  } catch (e) {
+    console.error(e)
+    return { data: null, errors: ['Error while fetching sales'] }
+  }
+}
+
 interface UpdateBluecardIDResponse {
   data: {
     updateBluecardId: 'updated'

@@ -1,7 +1,7 @@
 'use client'
 import { Check, ChevronDown, Minus, Plus } from 'lucide-react'
 import { formatCents } from './shared'
-import { DBOffering } from '@/app/db/db'
+import { DBOffering, DBSales } from '@/app/db/db'
 import { cn } from '@/lib/utils'
 import { OfferingImage } from '@/components/OfferingImage'
 import { Button } from '@/components/ui/button'
@@ -25,11 +25,12 @@ interface OfferingGridProps {
 export const OfferingGrid = (props: OfferingGridProps) => {
   const { offerings, quantities, onChange, maxItems, disabled } = props
 
-  const sorted = (offerings ?? []).toSorted((a, b) =>
-    a.readableName.localeCompare(b.readableName),
+  const available = (offerings ?? []).filter(
+    (offering) => !offering.discontinued,
   )
-  const available = sorted.filter((offering) => !offering.discontinued)
-  const discontinued = sorted.filter((offering) => offering.discontinued)
+  const discontinued = (offerings ?? []).filter(
+    (offering) => offering.discontinued,
+  )
   const canAdd = countItems(quantities) < maxItems
 
   const setQuantity = (name: string, quantity: number) => {
@@ -89,6 +90,24 @@ export const countItems = (quantities: OfferingQuantities) =>
     (sum, quantity) => sum + (quantity ?? 0),
     0,
   )
+
+export const rankOfferings = (
+  offerings: DBOffering[],
+  salesByPriority: DBSales[][],
+) => {
+  const counts = salesByPriority.map(
+    (sales) =>
+      new Map(sales.map((sold) => [sold.offeringId, sold.qty] as const)),
+  )
+
+  return offerings.toSorted((a, b) => {
+    for (const sold of counts) {
+      const difference = (sold.get(b.name) ?? 0) - (sold.get(a.name) ?? 0)
+      if (difference !== 0) return difference
+    }
+    return a.readableName.localeCompare(b.readableName)
+  })
+}
 
 interface OfferingTileProps {
   offering: DBOffering

@@ -36,6 +36,8 @@ import {
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 
+const ADMIN_MAX_DEBT_CENTS = 10_000
+
 export const PurchaseDialog = (props: ActionDialogProps) => {
   const { open, onOpenChange } = props
 
@@ -85,6 +87,10 @@ const PurchaseForm = (props: ActionDialogProps) => {
         item.quantity,
     0,
   )
+
+  const exceedsCredit =
+    user !== undefined &&
+    user.balance + totalCents > (user.isAdmin ? ADMIN_MAX_DEBT_CENTS : 0)
 
   const describe = (bookedItems: { product: string; quantity: number }[]) =>
     bookedItems
@@ -171,7 +177,12 @@ const PurchaseForm = (props: ActionDialogProps) => {
           {user && (
             <span>
               New balance:{' '}
-              <span className="font-semibold text-foreground">
+              <span
+                className={cn(
+                  'font-semibold',
+                  exceedsCredit ? 'text-red-400' : 'text-foreground',
+                )}
+              >
                 {displayBalance(user.balance + totalCents)}
               </span>
             </span>
@@ -199,7 +210,11 @@ const PurchaseForm = (props: ActionDialogProps) => {
         <Button
           type="submit"
           disabled={
-            pending || itemCount === 0 || !user || session === undefined
+            pending ||
+            itemCount === 0 ||
+            !user ||
+            session === undefined ||
+            exceedsCredit
           }
         >
           {pending ?

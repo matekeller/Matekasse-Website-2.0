@@ -1,11 +1,13 @@
 'use client'
 export const runtime = 'edge'
+import Link from 'next/link'
 import { redirect, useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
+  BreadcrumbPage,
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
@@ -71,20 +73,16 @@ export default function Page() {
         <Separator orientation="vertical" className="mr-2" />
         <Breadcrumb>
           <BreadcrumbList>
-            <BreadcrumbItem className="hidden md:block">
-              <BreadcrumbLink>Admin</BreadcrumbLink>
+            <BreadcrumbItem className="hidden md:block">Admin</BreadcrumbItem>
+            <BreadcrumbSeparator className="hidden md:block" />
+            <BreadcrumbItem>
+              <BreadcrumbLink render={<Link href="/admin/transactions" />}>
+                All Transactions
+              </BreadcrumbLink>
             </BreadcrumbItem>
-
             <BreadcrumbSeparator />
-
-            <BreadcrumbItem className="hidden md:block">
-              <BreadcrumbLink>Transactions</BreadcrumbLink>
-            </BreadcrumbItem>
-
-            <BreadcrumbSeparator />
-
-            <BreadcrumbItem className="hidden md:block">
-              <BreadcrumbLink>{username}</BreadcrumbLink>
+            <BreadcrumbItem>
+              <BreadcrumbPage>{username}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

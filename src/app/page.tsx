@@ -8,7 +8,7 @@ import { TransactionsArea } from '@/components/homepage/TransactionsArea'
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
+  BreadcrumbPage,
   BreadcrumbList,
 } from '@/components/ui/breadcrumb'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -87,8 +87,8 @@ export default function Home() {
         <Separator orientation="vertical" className="mr-2" />
         <Breadcrumb>
           <BreadcrumbList>
-            <BreadcrumbItem className="hidden md:block">
-              <BreadcrumbLink>Transactions</BreadcrumbLink>
+            <BreadcrumbItem>
+              <BreadcrumbPage>Transactions</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

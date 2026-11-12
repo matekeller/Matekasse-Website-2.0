@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
+  BreadcrumbPage,
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
@@ -65,14 +65,10 @@ export default function Page() {
         <Separator orientation="vertical" className="mr-2" />
         <Breadcrumb>
           <BreadcrumbList>
-            <BreadcrumbItem className="hidden md:block">
-              <BreadcrumbLink>Admin</BreadcrumbLink>
-            </BreadcrumbItem>
-
-            <BreadcrumbSeparator />
-
-            <BreadcrumbItem className="hidden md:block">
-              <BreadcrumbLink>Inventory</BreadcrumbLink>
+            <BreadcrumbItem className="hidden md:block">Admin</BreadcrumbItem>
+            <BreadcrumbSeparator className="hidden md:block" />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Inventory</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

@@ -6,7 +6,7 @@ import {
   Breadcrumb,
   BreadcrumbList,
   BreadcrumbItem,
-  BreadcrumbLink,
+  BreadcrumbPage,
 } from '@/components/ui/breadcrumb'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { SidebarTrigger } from '@/components/ui/sidebar'
@@ -59,8 +59,8 @@ export default function Home() {
         <Separator orientation="vertical" className="mr-2" />
         <Breadcrumb>
           <BreadcrumbList>
-            <BreadcrumbItem className="hidden md:block">
-              <BreadcrumbLink>Offerings</BreadcrumbLink>
+            <BreadcrumbItem>
+              <BreadcrumbPage>Offerings</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

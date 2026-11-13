@@ -83,7 +83,7 @@ const DeleteTransactionForm = (props: DeleteTransactionFormProps) => {
 
     if (deletedIds.length > 0) {
       onDeleted(deletedIds)
-      refreshSharedData()
+      void refreshSharedData()
     }
 
     if (errors.length === 0) {

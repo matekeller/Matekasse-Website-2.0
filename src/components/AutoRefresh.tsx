@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import { refreshData } from '@/hooks/data'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,
@@ -11,8 +12,8 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 
-const REFRESH_INTERVAL = 60_000
-const MIN_SPIN_DURATION = 500
+const REFRESH_INTERVAL_MS = 60_000
+const MIN_SPIN_DURATION_MS = 500
 let lastRefreshAt = Date.now()
 
 export const AutoRefresh = () => {
@@ -34,7 +35,7 @@ export const AutoRefresh = () => {
         'Could not refresh data. Showing the last loaded information.',
       )
     } finally {
-      const remaining = MIN_SPIN_DURATION - (Date.now() - startedAt)
+      const remaining = MIN_SPIN_DURATION_MS - (Date.now() - startedAt)
       if (remaining > 0) {
         await new Promise((resolve) => window.setTimeout(resolve, remaining))
       }
@@ -45,11 +46,14 @@ export const AutoRefresh = () => {
 
   useEffect(() => {
     const refreshIfStale = () => {
-      if (!document.hidden && Date.now() - lastRefreshAt >= REFRESH_INTERVAL) {
+      if (
+        !document.hidden &&
+        Date.now() - lastRefreshAt >= REFRESH_INTERVAL_MS
+      ) {
         void refresh()
       }
     }
-    const interval = window.setInterval(refreshIfStale, REFRESH_INTERVAL)
+    const interval = window.setInterval(refreshIfStale, REFRESH_INTERVAL_MS)
     document.addEventListener('visibilitychange', refreshIfStale)
     window.addEventListener('focus', refreshIfStale)
     refreshIfStale()
@@ -70,13 +74,16 @@ export const AutoRefresh = () => {
             className="ml-auto size-11 shrink-0 touch-manipulation"
             aria-label="Refresh data"
             onClick={() => void refresh()}
-          >
-            <RefreshCw
-              className={`size-5 motion-reduce:animate-none ${isRefreshing ? 'animate-spin' : ''}`}
-            />
-          </Button>
+          />
         }
-      />
+      >
+        <RefreshCw
+          className={cn(
+            'size-5 motion-reduce:animate-none',
+            isRefreshing && 'animate-spin',
+          )}
+        />
+      </TooltipTrigger>
       <TooltipContent side="bottom" align="end">
         Refresh now (auto every minute)
       </TooltipContent>

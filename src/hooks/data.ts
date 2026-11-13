@@ -35,6 +35,7 @@ const recordRefreshFailure = () => {
   if (refreshInProgress) refreshFailed = true
 }
 
+// Read through a function, as TypeScript would narrow the flag to false.
 const didRefreshFail = () => refreshFailed
 
 export const useOwnUserInfo = () => {
@@ -107,6 +108,7 @@ export const refreshData = async () => {
   refreshInProgress = true
   try {
     await mutate('/api/session')
+    // Lets hooks re-render with the refreshed session before they refetch.
     await new Promise<void>((resolve) => {
       window.requestAnimationFrame(() => resolve())
     })

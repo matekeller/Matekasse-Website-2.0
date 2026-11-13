@@ -15,24 +15,48 @@ const DATA_CHANGED_EVENT = 'matekasse:data-changed'
 // Keyed per signed-in user, not per access token: a token refresh would
 // otherwise empty the cache and briefly hide everything admin-only.
 const USER_DATA_KEYS = new Set(['me', 'users', 'sales'])
+let refreshInProgress = false
+let refreshFailed = false
 
 const isUserDataKey = (key: unknown) => {
   const name: unknown = Array.isArray(key) ? key[0] : key
   return typeof name === 'string' && USER_DATA_KEYS.has(name)
 }
 
+const requireData = <T extends { data: unknown }>(result: T): T => {
+  if (result.data === null) {
+    throw new Error('Request returned no data')
+  }
+
+  return result
+}
+
+const recordRefreshFailure = () => {
+  if (refreshInProgress) refreshFailed = true
+}
+
+const didRefreshFail = () => refreshFailed
+
 export const useOwnUserInfo = () => {
   const { session } = useSession()
-  const { data } = useSWR(session === undefined ? null : 'me', () =>
-    session === undefined ? null : fetchOwnUserInfo(session),
+  const { data } = useSWR(
+    session === undefined ? null : 'me',
+    async () =>
+      session === undefined ? null : (
+        requireData(await fetchOwnUserInfo(session))
+      ),
+    { onError: recordRefreshFailure },
   )
   return data?.data ?? undefined
 }
 
 export const useUsers = () => {
   const { session } = useSession()
-  const { data } = useSWR(session === undefined ? null : 'users', () =>
-    session === undefined ? null : fetchUsers(session),
+  const { data } = useSWR(
+    session === undefined ? null : 'users',
+    async () =>
+      session === undefined ? null : requireData(await fetchUsers(session)),
+    { onError: recordRefreshFailure },
   )
   return { users: data?.data ?? undefined, errors: data?.errors }
 }
@@ -41,8 +65,11 @@ export const useSales = (username: string | null) => {
   const { session } = useSession()
   const { data } = useSWR(
     session === undefined ? null : (['sales', username] as const),
-    ([, user]) => (session === undefined ? null : fetchSales(session, user)),
-    { keepPreviousData: true },
+    async ([, user]) =>
+      session === undefined ? null : (
+        requireData(await fetchSales(session, user))
+      ),
+    { keepPreviousData: true, onError: recordRefreshFailure },
   )
 
   return data === undefined ? undefined : (data?.data ?? [])
@@ -62,19 +89,40 @@ export const useClearUserDataOnSignOut = () => {
 }
 
 export const useOfferings = () => {
-  const { data } = useSWR('offerings', () => fetchOfferings())
+  const { data } = useSWR(
+    'offerings',
+    async () => requireData(await fetchOfferings()),
+    { onError: recordRefreshFailure },
+  )
   return { offerings: data?.data ?? undefined, errors: data?.errors }
 }
 
 // Refreshes cached users, offerings and own user info, e.g. balances.
 export const refreshSharedData = () => {
-  void mutate((key) => key !== '/api/session')
+  return mutate((key) => key !== '/api/session')
+}
+
+export const refreshData = async () => {
+  refreshFailed = false
+  refreshInProgress = true
+  try {
+    await mutate('/api/session')
+    await new Promise<void>((resolve) => {
+      window.requestAnimationFrame(() => resolve())
+    })
+    await refreshSharedData()
+    if (didRefreshFail()) throw new Error('One or more requests failed')
+    window.dispatchEvent(new Event(DATA_CHANGED_EVENT))
+  } finally {
+    refreshInProgress = false
+  }
 }
 
 // Also reloads pages that listen via useDataVersion.
 export const notifyDataChanged = () => {
-  refreshSharedData()
-  window.dispatchEvent(new Event(DATA_CHANGED_EVENT))
+  void refreshData().catch((error: unknown) => {
+    console.error('Failed to refresh shared data', error)
+  })
 }
 
 export const useDataVersion = () => {

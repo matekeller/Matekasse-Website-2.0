@@ -174,6 +174,28 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+[data-slot='breadcrumb-item'][data-collapsed='true'] {
+  font-size: 0;
+}
+
+[data-slot='breadcrumb-item'][data-collapsed='true']:not(
+    :has(> [data-slot='breadcrumb-link'], > [data-slot='breadcrumb-page'])
+  )::after {
+  content: '…';
+  font-size: 0.875rem;
+}
+
+[data-slot='breadcrumb-item'][data-collapsed='true']
+  > :is([data-slot='breadcrumb-link'], [data-slot='breadcrumb-page']) {
+  font-size: 0;
+}
+
+[data-slot='breadcrumb-item'][data-collapsed='true']
+  > :is([data-slot='breadcrumb-link'], [data-slot='breadcrumb-page'])::after {
+  content: '…';
+  font-size: 0.875rem;
+}
+
 @media (max-width: 767px) {
   [data-sidebar='sidebar'][data-mobile='true'] [data-slot='separator'] {
     background-color: color-mix(in oklab, var(--sidebar-foreground) 35%, transparent);

@@ -17,6 +17,7 @@ import { useSession } from '@/hooks/session'
 import { useDataVersion } from '@/hooks/data'
 import { UsersArea } from '@/components/admin/users/UsersArea'
 import { Input } from '@/components/ui/input'
+import { PageHeader } from '@/components/PageHeader'
 
 export interface User {
   username: string
@@ -57,10 +58,10 @@ export default function Home() {
 
   return (
     <>
-      <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 w-full">
+      <PageHeader>
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2" />
-        <div className="flex flex-row justify-between w-full items-center">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">Admin</BreadcrumbItem>
@@ -74,11 +75,11 @@ export default function Home() {
           <Input
             placeholder="Search users…"
             enterKeyHint="search"
-            className="w-max"
+            className="w-24 shrink-0 sm:w-48"
             onChange={(event) => setFilter(event.target.value.toLowerCase())}
           />
         </div>
-      </header>
+      </PageHeader>
 
       <div className="flex flex-1 flex-col p-4">
         <ScrollArea>

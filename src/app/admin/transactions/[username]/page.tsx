@@ -24,6 +24,7 @@ import {
 import { assert, getTransactionsFromRaw } from '@/lib/utils'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { TransactionsArea } from '@/components/homepage/TransactionsArea'
+import { PageHeader } from '@/components/PageHeader'
 
 export default function Page() {
   const { username } = useParams()
@@ -68,7 +69,7 @@ export default function Page() {
 
   return (
     <>
-      <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 w-full">
+      <PageHeader>
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2" />
         <Breadcrumb>
@@ -86,7 +87,7 @@ export default function Page() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-      </header>
+      </PageHeader>
 
       <div className="flex flex-1 flex-col gap-4 p-4">
         <ScrollArea>

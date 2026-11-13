@@ -13,13 +13,15 @@ const MAX_SUGGESTIONS = 6
 interface UserPickerProps {
   label?: string
   users: DBUser[] | undefined
+  // Why `users` could not be loaded.
+  errors?: string[]
   value: string | null
   onChange: (username: string | null) => void
   disabled?: boolean
 }
 
 export const UserPicker = (props: UserPickerProps) => {
-  const { label = 'User', users, value, onChange, disabled } = props
+  const { label = 'User', users, errors, value, onChange, disabled } = props
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
@@ -124,8 +126,13 @@ export const UserPicker = (props: UserPickerProps) => {
           className="absolute top-full z-50 mt-1 w-full overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md max-sm:static max-sm:mt-0"
         >
           {users === undefined ?
-            <li className="px-2 py-1.5 text-sm text-muted-foreground">
-              Loading users…
+            <li
+              className={cn(
+                'px-2 py-1.5 text-sm',
+                errors ? 'text-red-400' : 'text-muted-foreground',
+              )}
+            >
+              {errors?.join(', ') ?? 'Loading users…'}
             </li>
           : suggestions.length === 0 ?
             <li className="px-2 py-1.5 text-sm text-muted-foreground">

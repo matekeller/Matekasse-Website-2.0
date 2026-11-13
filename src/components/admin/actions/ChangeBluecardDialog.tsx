@@ -33,7 +33,7 @@ export const ChangeBluecardDialog = (props: ActionDialogProps) => {
 const ChangeBluecardForm = (props: ActionDialogProps) => {
   const { initialUsername, onOpenChange } = props
   const { session } = useSession()
-  const { users } = useUsers()
+  const { users, errors: userErrors } = useUsers()
 
   const [username, setUsername] = useState(initialUsername ?? null)
   const [newBluecardId, setNewBluecardId] = useState('')
@@ -79,6 +79,7 @@ const ChangeBluecardForm = (props: ActionDialogProps) => {
 
       <UserPicker
         users={users}
+        errors={userErrors}
         value={username}
         onChange={setUsername}
         disabled={pending}

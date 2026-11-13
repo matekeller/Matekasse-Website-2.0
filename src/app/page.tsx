@@ -1,8 +1,6 @@
 'use client'
 export const runtime = 'edge'
 import { Cat } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { useInView } from 'react-intersection-observer'
 import { fetchOwnTransactions } from './db/db'
 import { TransactionsArea } from '@/components/homepage/TransactionsArea'
 import {
@@ -14,10 +12,8 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import { useSession } from '@/hooks/session'
-import { useDataVersion } from '@/hooks/data'
-import { getTransactions } from '@/lib/utils'
 import { PageHeader } from '@/components/PageHeader'
+import { useTransactionPages } from '@/hooks/transactions'
 
 export interface Transaction {
   id: number
@@ -32,54 +28,8 @@ export interface Transaction {
 }
 
 export default function Home() {
-  const { session } = useSession()
-  // Token refreshes change `session`; reloading on them would reset the list.
-  const hasSession = session !== undefined
-  const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [cursor, setCursor] = useState<number | null>(null)
-  const dataVersion = useDataVersion()
-
-  const { ref, inView } = useInView()
-
-  useEffect(() => {
-    if (!session) return
-
-    const fetchData = async () => {
-      const transactionData = await fetchOwnTransactions(session)
-
-      if (transactionData.data == null) return
-
-      const serializedTransactions = await getTransactions(
-        [transactionData.data],
-        null,
-      )
-
-      setTransactions(serializedTransactions)
-      setCursor(transactionData.data.pageInfo.endCursor)
-    }
-
-    void fetchData()
-  }, [hasSession, dataVersion])
-
-  useEffect(() => {
-    if (!session || !inView || !cursor) return
-
-    const fetchMoreTransactions = async () => {
-      const moreTransactions = await fetchOwnTransactions(session, cursor)
-
-      if (moreTransactions.data == null) return
-
-      const serializedTransactions = await getTransactions(
-        [moreTransactions.data],
-        cursor,
-      )
-
-      setTransactions((cur) => [...cur, ...serializedTransactions])
-      setCursor(moreTransactions.data.pageInfo.endCursor)
-    }
-
-    void fetchMoreTransactions()
-  }, [hasSession, cursor, inView])
+  const { transactions, loadMoreRef } =
+    useTransactionPages(fetchOwnTransactions)
 
   return (
     <main>
@@ -98,7 +48,7 @@ export default function Home() {
         <ScrollArea>
           <TransactionsArea transactions={transactions} />
           {transactions.length !== 0 && (
-            <Cat className="text-muted w-full h-50" ref={ref} />
+            <Cat className="text-muted w-full h-50" ref={loadMoreRef} />
           )}
         </ScrollArea>
       </div>

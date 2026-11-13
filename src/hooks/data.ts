@@ -23,13 +23,19 @@ const isUserDataKey = (key: unknown) => {
   return typeof name === 'string' && USER_DATA_KEYS.has(name)
 }
 
-const requireData = <T extends { data: unknown }>(result: T): T => {
+const requireData = <T extends { data: unknown; errors?: string[] }>(
+  result: T,
+): T => {
   if (result.data === null) {
-    throw new Error('Request returned no data')
+    throw new Error(result.errors?.join(', ') ?? 'Request returned no data')
   }
 
   return result
 }
+
+// Only while nothing is loaded, as failed refreshes keep the last data.
+const getLoadErrors = ({ data, error }: { data: unknown; error: unknown }) =>
+  data === undefined && error instanceof Error ? [error.message] : undefined
 
 const recordRefreshFailure = () => {
   if (refreshInProgress) refreshFailed = true
@@ -53,18 +59,21 @@ export const useOwnUserInfo = () => {
 
 export const useUsers = () => {
   const { session } = useSession()
-  const { data } = useSWR(
+  const response = useSWR(
     session === undefined ? null : 'users',
     async () =>
       session === undefined ? null : requireData(await fetchUsers(session)),
     { onError: recordRefreshFailure },
   )
-  return { users: data?.data ?? undefined, errors: data?.errors }
+  return {
+    users: response.data?.data ?? undefined,
+    errors: getLoadErrors(response),
+  }
 }
 
 export const useSales = (username: string | null) => {
   const { session } = useSession()
-  const { data } = useSWR(
+  const response = useSWR(
     session === undefined ? null : (['sales', username] as const),
     async ([, user]) =>
       session === undefined ? null : (
@@ -73,7 +82,11 @@ export const useSales = (username: string | null) => {
     { keepPreviousData: true, onError: recordRefreshFailure },
   )
 
-  return data === undefined ? undefined : (data?.data ?? [])
+  // Undefined while loading. Failed requests count as no sales.
+  if (response.data === undefined) {
+    return response.error === undefined ? undefined : []
+  }
+  return response.data?.data ?? []
 }
 
 // Drops the previous user's data once signed out, so the next one never sees it.
@@ -90,12 +103,15 @@ export const useClearUserDataOnSignOut = () => {
 }
 
 export const useOfferings = () => {
-  const { data } = useSWR(
+  const response = useSWR(
     'offerings',
     async () => requireData(await fetchOfferings()),
     { onError: recordRefreshFailure },
   )
-  return { offerings: data?.data ?? undefined, errors: data?.errors }
+  return {
+    offerings: response.data?.data ?? undefined,
+    errors: getLoadErrors(response),
+  }
 }
 
 // Refreshes cached users, offerings and own user info, e.g. balances.

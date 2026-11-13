@@ -53,7 +53,7 @@ export const PurchaseDialog = (props: ActionDialogProps) => {
 const PurchaseForm = (props: ActionDialogProps) => {
   const { initialUsername, onOpenChange } = props
   const { session } = useSession()
-  const { users } = useUsers()
+  const { users, errors: userErrors } = useUsers()
   const { offerings, errors: offeringErrors } = useOfferings()
 
   const [username, setUsername] = useState(initialUsername ?? null)
@@ -148,6 +148,7 @@ const PurchaseForm = (props: ActionDialogProps) => {
 
       <UserPicker
         users={users}
+        errors={userErrors}
         value={username}
         onChange={setUsername}
         disabled={pending}

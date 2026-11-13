@@ -22,6 +22,7 @@ import {
   fetchUserTransactions,
 } from '@/app/db/db'
 import { assert, getTransactionsFromRaw } from '@/lib/utils'
+import { keepScrollPosition } from '@/lib/scroll'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { TransactionsArea } from '@/components/homepage/TransactionsArea'
 import { PageHeader } from '@/components/PageHeader'
@@ -61,7 +62,7 @@ export default function Page() {
         transactionData.data,
       )
 
-      setTransactions(serializedTransactions)
+      keepScrollPosition(() => setTransactions(serializedTransactions))
     }
 
     void fetchData()

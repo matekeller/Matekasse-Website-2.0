@@ -2,7 +2,6 @@
 export const runtime = 'edge'
 import { useEffect, useState } from 'react'
 import { redirect } from 'next/navigation'
-import { useInView } from 'react-intersection-observer'
 import { Cat } from 'lucide-react'
 import { fetchAllTransactions, fetchOwnUserInfo } from '../../db/db'
 import {
@@ -16,26 +15,23 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
 import { useSession } from '@/hooks/session'
-import { useDataVersion } from '@/hooks/data'
-import { Transaction } from '@/app/page'
+import { useTransactionPages } from '@/hooks/transactions'
 import { TransactionsArea } from '@/components/homepage/TransactionsArea'
-import { getTransactions } from '@/lib/utils'
 import { PageHeader } from '@/components/PageHeader'
 
 export default function Home() {
   const { session } = useSession()
-  // Token refreshes change `session`; reloading on them would reset the list.
   const hasSession = session !== undefined
-  const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [cursor, setCursor] = useState<number | null>(null)
-  const dataVersion = useDataVersion()
-
-  const { ref, inView } = useInView()
+  const [isAdmin, setIsAdmin] = useState(false)
+  const { transactions, loadMoreRef } = useTransactionPages(
+    fetchAllTransactions,
+    isAdmin,
+  )
 
   useEffect(() => {
     if (!session) return
 
-    const fetchData = async () => {
+    const checkAdmin = async () => {
       const userInfoData = await fetchOwnUserInfo(session)
 
       if (userInfoData.data == null) return
@@ -44,41 +40,11 @@ export default function Home() {
         redirect('/')
       }
 
-      const transactionData = await fetchAllTransactions(session)
-
-      if (transactionData.data == null) return
-
-      const serializedTransactions = await getTransactions(
-        [transactionData.data],
-        null,
-      )
-
-      setTransactions(serializedTransactions)
-      setCursor(transactionData.data.pageInfo.endCursor)
+      setIsAdmin(true)
     }
 
-    void fetchData()
-  }, [hasSession, dataVersion])
-
-  useEffect(() => {
-    if (!session || !inView || !cursor) return
-
-    const fetchMoreTransactions = async () => {
-      const moreTransactions = await fetchAllTransactions(session, cursor)
-
-      if (moreTransactions.data == null) return
-
-      const serializedTransactions = await getTransactions(
-        [moreTransactions.data],
-        cursor,
-      )
-
-      setTransactions((cur) => [...cur, ...serializedTransactions])
-      setCursor(moreTransactions.data.pageInfo.endCursor)
-    }
-
-    void fetchMoreTransactions()
-  }, [hasSession, cursor, inView])
+    void checkAdmin()
+  }, [hasSession])
 
   return (
     <>
@@ -104,7 +70,7 @@ export default function Home() {
             mergeTransfers
           />
           {transactions.length !== 0 && (
-            <Cat className="text-muted w-full h-50" ref={ref} />
+            <Cat className="text-muted w-full h-50" ref={loadMoreRef} />
           )}
         </ScrollArea>
       </div>

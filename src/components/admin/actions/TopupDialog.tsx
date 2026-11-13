@@ -66,7 +66,7 @@ export const TopupDialog = (props: ActionDialogProps) => {
 const TopupForm = (props: ActionDialogProps) => {
   const { initialUsername, onOpenChange } = props
   const { session } = useSession()
-  const { users } = useUsers()
+  const { users, errors: userErrors } = useUsers()
 
   const [mode, setMode] = useState<Mode>('credit')
   // Pays in a transfer.
@@ -151,6 +151,7 @@ const TopupForm = (props: ActionDialogProps) => {
           <UserPicker
             label="From"
             users={users}
+            errors={userErrors}
             value={username}
             onChange={setUsername}
             disabled={pending}
@@ -175,6 +176,7 @@ const TopupForm = (props: ActionDialogProps) => {
             users={users?.filter(
               (candidate) => candidate.username !== username,
             )}
+            errors={userErrors}
             value={recipient}
             onChange={setRecipient}
             disabled={pending}
@@ -182,6 +184,7 @@ const TopupForm = (props: ActionDialogProps) => {
         </div>
       : <UserPicker
           users={users}
+          errors={userErrors}
           value={username}
           onChange={setUsername}
           disabled={pending}

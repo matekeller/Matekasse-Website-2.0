@@ -145,7 +145,7 @@ const InventoryArea = (props: InventoryAreaProps) => {
           <InventoryItemCard
             item={inventoryItem}
             idx={idx}
-            key={idx}
+            key={inventoryItem.name}
             changes={changes}
             onUpdateChanges={(change) => setChanges(change)}
           />
@@ -166,7 +166,7 @@ const InventoryArea = (props: InventoryAreaProps) => {
           <InventoryItemCard
             item={inventoryItem}
             idx={idx}
-            key={idx}
+            key={inventoryItem.name}
             changes={changes}
             onUpdateChanges={(change) => setChanges(change)}
           />

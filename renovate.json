@@ -5,6 +5,7 @@
     "group:all",
     "helpers:pinGitHubActionDigests"
   ],
+  "constraints": { "npm": "^10" },
   "minimumReleaseAge": "3 days",
   "lockFileMaintenance": { "enabled": true, "minimumReleaseAge": null },
   "packageRules": [

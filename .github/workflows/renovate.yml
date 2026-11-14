@@ -1,8 +1,11 @@
 name: Renovate
 
 on:
+  # GitHub often delays runs on the full hour by hours. The second is a fallback.
   schedule:
-    - cron: '0 12 * * 5'
+    - cron: '17 12 * * 5'
+      timezone: 'Europe/Berlin'
+    - cron: '47 14 * * 5'
       timezone: 'Europe/Berlin'
   workflow_dispatch:
 

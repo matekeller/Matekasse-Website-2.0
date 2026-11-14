@@ -23,6 +23,13 @@
       "description": "eslint-plugin-react and eslint-plugin-import do not support ESLint 10 yet.",
       "matchPackageNames": ["eslint"],
       "allowedVersions": "<10.0.0"
+    },
+    {
+      "description": "Lockfiles are written with the npm of the Node version in wrangler.toml, which CI and Cloudflare use. npm 12 also fails on Tailwind's WebAssembly package (EALLOWREMOTE).",
+      "matchManagers": ["renovate-config"],
+      "matchDepTypes": ["tool-constraint"],
+      "matchPackageNames": ["npm"],
+      "enabled": false
     }
   ]
 }
